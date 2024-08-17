@@ -18,12 +18,16 @@ namespace Turing
         sate_set_T state;
         symbol_set_T symbol;
 
-        std::string toString() const {
-            return std::to_string(state) + std::to_string(symbol);
-        }
-
         size_t hash() const {
-            return std::hash<std::string>()(toString());
+            if (static_cast<size_t>(state) > static_cast<size_t>(symbol))
+            {
+                return static_cast<size_t>(state) * static_cast<size_t>(state) + static_cast<size_t>(state) + static_cast<size_t>(symbol);
+            }
+            else
+            {
+                return static_cast<size_t>(symbol) * static_cast<size_t>(symbol) + static_cast<size_t>(state);
+            }
+            
         }
 
         bool operator==(const State_Symbol< sate_set_T, symbol_set_T>& other) const {
@@ -64,7 +68,14 @@ namespace Turing
                 map[{State_Keys[i], Symbol_key}] = { State_Values[i],Symbol_Value,Move_Value };
         }
 
-        SSM& operator[](SS& key) { return map[key]; }
+        SSM& operator[](SS& key) 
+        { 
+            if (auto search = map.find(key); search != map.end())
+            {
+                
+                return (*search).second;
+            }
+        }
     };
 
     template <typename sate_set_T, typename symbol_set_T, int tape_size_T>
@@ -137,7 +148,7 @@ namespace Turing
                 break;
             case(Movement::left):
                 --position;
-                assert((position > 0) && "Head attempted to move out of tape : left");
+                assert((position >= 0) && "Head attempted to move out of tape : left");
                 break;
             case(Movement::right):
                 ++position;
