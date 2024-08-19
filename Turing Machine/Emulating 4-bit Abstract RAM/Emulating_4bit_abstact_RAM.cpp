@@ -23,6 +23,9 @@ enum states
     clear,
     load,
 
+    mark_mem_location,
+    read_R,
+    store,
     
 
     //Adjustments
@@ -32,39 +35,39 @@ enum states
 
     //4 - Bit Read and write states
     //By using states to read, store & write the machine becomes signifficantly smaller and more intuiative (though at the cost of having significantly more states).
-    Q1XXX, L1XXX, IL1XXX,
-    Q0XXX, L0XXX, IL0XXX,
-
-    Q10XX, L10XX, IL10XX,
-    Q01XX, L01XX, IL01XX,
-    Q11XX, L11XX, IL11XX,
-    Q00XX, L00XX, IL00XX,
-
-    Q111X, L111X, IL111X,
-    Q110X, L110X, IL110X,
-    Q101X, L101X, IL101X,
-    Q100X, L100X, IL100X,
-    Q011X, L011X, IL011X,
-    Q010X, L010X, IL010X,
-    Q001X, L001X, IL001X,
-    Q000X, L000X, IL000X,
-
-    Q1110, L1110, IL1110,
-    Q1100, L1100, IL1100,
-    Q1010, L1010, IL1010,
-    Q1000, L1000, IL1000,
-    Q0110, L0110, IL0110,
-    Q0100, L0100, IL0100,
-    Q0010, L0010, IL0010,
-    Q0000, L0000, IL0000,
-    Q1111, L1111, IL1111,
-    Q1101, L1101, IL1101,
-    Q1011, L1011, IL1011,
-    Q1001, L1001, IL1001,
-    Q0111, L0111, IL0111,
-    Q0101, L0101, IL0101,
-    Q0011, L0011, IL0011,
-    Q0001, L0001, IL0001,
+    Q1XXX, L1XXX, IL1XXX, RXXX1,
+    Q0XXX, L0XXX, IL0XXX, RXXX0,
+                          
+    Q10XX, L10XX, IL10XX, RXX11,
+    Q01XX, L01XX, IL01XX, RXX01,
+    Q11XX, L11XX, IL11XX, RXX10,
+    Q00XX, L00XX, IL00XX, RXX00,
+                          
+    Q111X, L111X, IL111X, RX111,
+    Q110X, L110X, IL110X, RX101,
+    Q101X, L101X, IL101X, RX011,
+    Q100X, L100X, IL100X, RX001,
+    Q011X, L011X, IL011X, RX110,
+    Q010X, L010X, IL010X, RX100,
+    Q001X, L001X, IL001X, RX010,
+    Q000X, L000X, IL000X, RX000,
+                          
+    Q1110, L1110, IL1110, R1110,
+    Q1100, L1100, IL1100, R1100,
+    Q1010, L1010, IL1010, R1010,
+    Q1000, L1000, IL1000, R1000,
+    Q0110, L0110, IL0110, R0110,
+    Q0100, L0100, IL0100, R0100,
+    Q0010, L0010, IL0010, R0010,
+    Q0000, L0000, IL0000, R0000,
+    Q1111, L1111, IL1111, R1111,
+    Q1101, L1101, IL1101, R1101,
+    Q1011, L1011, IL1011, R1011,
+    Q1001, L1001, IL1001, R1001,
+    Q0111, L0111, IL0111, R0111,
+    Q0101, L0101, IL0101, R0101,
+    Q0011, L0011, IL0011, R0011,
+    Q0001, L0001, IL0001, R0001,
 
     //2 - Bit Read and write states
     RX0,
@@ -100,17 +103,20 @@ enum symbols
         Load_from_mem,
 
     Store,
+        Send_register,
 
     End,
 
     //Memory Mangment
     LOC,
+    PASS,
+    MARK,
     PC,
     SEND_BACK,
     PC_INC,
     PC_WRITE,
 
-    //Memory Mangment
+    //Register Mangment
     REGISTER,
     ACTIVE_REGISTER,
 
@@ -136,22 +142,27 @@ int main()
 
     std::vector<states> Q_Segments_full
     {
-        Q1110,Q1100,Q1010,Q1000,Q0110,Q0100,Q0010,Q0000,Q1111,Q1101,Q1011,Q1001,Q0111,Q0101,Q0011,Q0001,
+        Q1110,Q1100,Q1010,Q1000,Q0110,Q0100,Q0010,Q0000,Q1111,Q1101,Q1011,Q1001,Q0111,Q0101,Q0011,Q0001,//reading states 
     };
 
     std::vector<states> L_Write_Segments_full
     {
-        L1110,L1100,L1010,L1000,L0110,L0100,L0010,L0000,L1111,L1101,L1011,L1001,L0111,L0101,L0011,L0001,
+        L1110,L1100,L1010,L1000,L0110,L0100,L0010,L0000,L1111,L1101,L1011,L1001,L0111,L0101,L0011,L0001,//return and write state leftward
+    };
+
+    std::vector<states> R_Write_Segments_full
+    {
+        R1110,R1100,R1010,R1000,R0110,R0100,R0010,R0000,R1111,R1101,R1011,R1001,R0111,R0101,R0011,R0001,//send and write state rightward
     };
 
     std::vector<states> IL_Write_Segments_full
     {
-        IL1110,IL1100,IL1010,IL1000,IL0110,IL0100,IL0010,IL0000,IL1111,IL1101,IL1011,IL1001,IL0111,IL0101,IL0011,IL0001,
+        IL1110,IL1100,IL1010,IL1000,IL0110,IL0100,IL0010,IL0000,IL1111,IL1101,IL1011,IL1001,IL0111,IL0101,IL0011,IL0001,//instant write states (used in pc increment)
     };
 
-    std::vector<states> R_Segments_full
+    std::vector<states> Register_Segments_full
     {
-        R00,R10,R01,R11,
+        R00,R10,R01,R11,//2-bit Register & Command read states
     };
 
     //Core cycle
@@ -159,33 +170,81 @@ int main()
 
     rules.add({ go, Reset }, { reset, Get_command , Turing::left }); //Reset the Core command and memory registers
 
-    rules.add({ go, Get_command }, { get, PC_inc1, Turing::right }); // Fill Core command register
+    rules.add({ go, Get_command }, { get, PC_inc1, Turing::right }); //Fill Core command register
 
-    rules.add({ go, PC_inc1 }, { pc_inc, Get_memory, Turing::right }); //Start a pc increment cycle
+    rules.add({ go, PC_inc1 }, { pc_inc, Get_memory, Turing::right }); //Increment the PC 
 
     rules.add({ go, Get_memory }, { get, PC_inc2, Turing::right }); //Fill Core Memory register
 
-    rules.add({ go, PC_inc2 }, { pc_inc, Prep_register, Turing::right }); //Start a pc increment cycle
+    rules.add({ go, PC_inc2 }, { pc_inc, Prep_register, Turing::right }); //Increment the PC 
 
     rules.add({ go, Prep_register }, { read_2bits, Read_command, Turing::left }); //read the register that will be used in executing the command and them mark it
 
     rules.add({ go, Read_command }, { read_2bits, Waiting, Turing::left }); // Read the command to be executed
 
 
-    //End Command
-    rules.add({ go, End }, { end, End , Turing::left });
+    
 
     //Load Command
     rules.add({ go, Load }, { clear_register, Load_from_mem , Turing::right });
     rules.add({ go, Load_from_mem }, { load, Reset , Turing::left });
 
+    //Store Command
+    rules.add({ go, Store }, { mark_mem_location, Send_register , Turing::left });
+    rules.add({ go, Send_register }, { store, Reset , Turing::right });
+
+    //End Command
+    rules.add({ go, End }, { end, End , Turing::left });
+
+    //Define store
+    rules.add({ store, REGISTER }, { store, REGISTER , Turing::right });//Skip
+    rules.add({ store, Zero }, { store, Zero , Turing::right });
+    rules.add({ store, One }, { store, One , Turing::right });
+
+    rules.add({ store, ACTIVE_REGISTER }, { read_Q, REGISTER , Turing::right });//Read Memory location (will tranform to r-write)
+
+    //Define mark memory location
+    rules.add({ mark_mem_location, Blank }, { mark_mem_location, Blank , Turing::left });//Skip back
+    rules.add({ mark_mem_location, Zero }, { mark_mem_location, Zero , Turing::left });
+    rules.add({ mark_mem_location, One }, { mark_mem_location, One , Turing::left });
+
+    rules.add({ mark_mem_location, Start }, { read_Q, Start , Turing::right });// Read Memory location (will tranform to r-write)
+
+    //Define R write (1st call. prepare for write)
+    rules.add(R_Write_Segments_full, Zero, R_Write_Segments_full, Zero, Turing::right); //Skip 
+    rules.add(R_Write_Segments_full, One, R_Write_Segments_full, One, Turing::right);
+    rules.add(R_Write_Segments_full, REGISTER, R_Write_Segments_full, REGISTER, Turing::right);
+    rules.add(R_Write_Segments_full, ACTIVE_REGISTER, R_Write_Segments_full, ACTIVE_REGISTER, Turing::right);
+    rules.add(R_Write_Segments_full, PC, R_Write_Segments_full, PC, Turing::right);
+
+    rules.add({ R1111, LOC }, { R1110, PASS , Turing::right }); //count down
+    rules.add({ R1110, LOC }, { R1101, PASS , Turing::right });
+    rules.add({ R1101, LOC }, { R1100, PASS , Turing::right });
+    rules.add({ R1100, LOC }, { R1011, PASS , Turing::right });
+    rules.add({ R1011, LOC }, { R1010, PASS , Turing::right });
+    rules.add({ R1010, LOC }, { R1001, PASS , Turing::right });
+    rules.add({ R1001, LOC }, { R1000, PASS , Turing::right });
+    rules.add({ R1000, LOC }, { R0111, PASS , Turing::right });
+    rules.add({ R0111, LOC }, { R0110, PASS , Turing::right });
+    rules.add({ R0110, LOC }, { R0101, PASS , Turing::right });
+    rules.add({ R0101, LOC }, { R0100, PASS , Turing::right });
+    rules.add({ R0100, LOC }, { R0011, PASS , Turing::right });
+    rules.add({ R0011, LOC }, { R0010, PASS , Turing::right });
+    rules.add({ R0010, LOC }, { R0001, PASS , Turing::right });
+    rules.add({ R0001, LOC }, { R0000, PASS , Turing::right });
+                
+    rules.add({ R0000, LOC }, { return_to_start, MARK , Turing::left }); //reached destination (now prepered for write)
+
+    rules.add(R_Write_Segments_full, PASS, R_Write_Segments_full, LOC, Turing::right);//Write case (will only work if preperation has occoured)
+    rules.add(R_Write_Segments_full, MARK, IL_Write_Segments_full, LOC, Turing::left);
+
 
     //Define load
-    rules.add({ load, Blank }, { load, Blank , Turing::left });//Skip 
+    rules.add({ load, Blank }, { load, Blank , Turing::left });//Skip back
     rules.add({ load, Zero }, { load, Zero , Turing::left });
     rules.add({ load, One }, { load, One , Turing::left });
 
-    rules.add({ load, Start }, { read_Q, Start , Turing::right });//Read memory location and return result stored at that location (see read_Q)
+    rules.add({ load, Start }, { read_Q, Start , Turing::right });//Read memory location (Will be transformed into R-write command)
 
     //Define clear register
     rules.add({ clear_register, Zero }, { clear_register, Zero, Turing::right }); // Skip to active register
@@ -214,10 +273,10 @@ int main()
     rules.add({ R01, Waiting }, { return_to_start, Store , Turing::left });
     rules.add({ R11, Waiting }, { return_to_start, End , Turing::left });
 
-    rules.add(R_Segments_full, Zero, R_Segments_full, Zero, Turing::right); //or Skip 
-    rules.add(R_Segments_full, One, R_Segments_full, One, Turing::right);
-    rules.add(R_Segments_full, Blank, R_Segments_full, Blank, Turing::right);
-    rules.add(R_Segments_full, Read_command, R_Segments_full, Read_command, Turing::right);
+    rules.add(Register_Segments_full, Zero, Register_Segments_full, Zero, Turing::right); //or Skip 
+    rules.add(Register_Segments_full, One, Register_Segments_full, One, Turing::right);
+    rules.add(Register_Segments_full, Blank, Register_Segments_full, Blank, Turing::right);
+    rules.add(Register_Segments_full, Read_command, Register_Segments_full, Read_command, Turing::right);
 
     rules.add({ R10, REGISTER }, { R01, REGISTER , Turing::right });//Count Down
     rules.add({ R01, REGISTER }, { R00, REGISTER , Turing::right });
@@ -235,12 +294,17 @@ int main()
     rules.add({ return_to_start, Prep_register }, { return_to_start, Prep_register, Turing::left });
     rules.add({ return_to_start, Read_command }, { return_to_start, Read_command, Turing::left });
     rules.add({ return_to_start, Load_from_mem }, { return_to_start, Load_from_mem, Turing::left });
+    rules.add({ return_to_start, Send_register }, { return_to_start, Send_register, Turing::left });
     rules.add({ return_to_start, Reset }, { return_to_start, Reset, Turing::left });
     rules.add({ return_to_start, Zero }, { return_to_start, Zero , Turing::left });
     rules.add({ return_to_start, One }, { return_to_start, One , Turing::left });
     rules.add({ return_to_start, PC }, { return_to_start, PC , Turing::left });
     rules.add({ return_to_start, Blank }, { return_to_start, Blank , Turing::left });
     rules.add({ return_to_start, REGISTER }, { return_to_start, REGISTER , Turing::left });
+    rules.add({ return_to_start, ACTIVE_REGISTER }, { return_to_start, ACTIVE_REGISTER , Turing::left });
+    rules.add({ return_to_start, PASS }, { return_to_start, PASS , Turing::left });
+    rules.add({ return_to_start, MARK }, { return_to_start, MARK , Turing::left });
+    rules.add({ return_to_start, LOC }, { return_to_start, LOC , Turing::left });
 
     rules.add({ return_to_start, Start }, { go, Start , Turing::right });//Done 
 
@@ -257,7 +321,7 @@ int main()
     rules.add({ reset, Blank }, { reset, Blank , Turing::left });
     rules.add({ reset, Start }, { go, Start , Turing::right }); //Until start
     
-    //Define Q-Read ~ read 4 bits (overload. then go to memory location specifeid and read the 4 bits there & then return those 4 bits)
+    //Define Q-Read ~ read 4 bits (overload. then go to memory location specifeid and read the 4 bits there & then return thoe 4-bits read)
     rules.add({ read_Q, One }, { Q1XXX, One , Turing::right });
     rules.add({ read_Q, Zero },{ Q0XXX, Zero , Turing::right });
 
@@ -300,6 +364,9 @@ int main()
     rules.add(Q_Segments_full, PC, Q_Segments_full, PC, Turing::right);
     rules.add(Q_Segments_full, Blank, Q_Segments_full, Blank, Turing::right);
 
+    rules.add(Q_Segments_full, Send_register, R_Write_Segments_full, Send_register, Turing::right);//special cases transform into r-write command
+    rules.add(Q_Segments_full, PASS, R_Write_Segments_full, PASS, Turing::stay);
+
     rules.add({ Q1111, LOC }, { Q1110, LOC , Turing::right }); //count down
     rules.add({ Q1110, LOC }, { Q1101, LOC , Turing::right });
     rules.add({ Q1101, LOC }, { Q1100, LOC , Turing::right });
@@ -322,7 +389,7 @@ int main()
     rules.add({ last_LOC, One }, { last_LOC, One , Turing::left });
     rules.add({ last_LOC, LOC }, { read_Q, LOC , Turing::right }); //Read contents
     rules.add({ last_LOC, PC }, { read_Q, PC , Turing::right }); //Read contents
-    rules.add(Q_Segments_full, SEND_BACK, L_Write_Segments_full, LOC , Turing::left); // Now return and write
+    rules.add(Q_Segments_full, SEND_BACK, L_Write_Segments_full, LOC , Turing::left); // return and write
 
 
     //L_Write ~ Move left until blank space is found then write 
@@ -406,7 +473,7 @@ int main()
     rules.add({ IL1XXX, One }, { return_to_start, One , Turing::left });
     rules.add({ IL0XXX, One }, { return_to_start, Zero , Turing::left }); //now return to go
 
-    rules.add({ IL1111, Zero }, { IL111X, One , Turing::left });//Write ("zeo" case)
+    rules.add({ IL1111, Zero }, { IL111X, One , Turing::left });//Write ("zero" case)
     rules.add({ IL1110, Zero }, { IL111X, Zero , Turing::left });
     rules.add({ IL1101, Zero }, { IL110X, One , Turing::left });
     rules.add({ IL1100, Zero }, { IL110X, Zero , Turing::left });
@@ -441,7 +508,6 @@ int main()
     rules.add({ IL0XXX, Zero }, { return_to_start, Zero , Turing::left }); //now return to start
 
     //Define a PC inrement by 1
-
     rules.add({ pc_inc, Zero }, { pc_inc, Zero , Turing::right });//skip to pc reg
     rules.add({ pc_inc, One }, { pc_inc, One , Turing::right });
     rules.add({ pc_inc, REGISTER }, { pc_inc, REGISTER , Turing::right });
@@ -498,9 +564,9 @@ int main()
         LOC,
         Zero,One,One,One,    //#0011
         LOC,
-        Zero,Zero,Zero,Zero, //#0100
+        Zero,One,One,Zero, //#0100
         LOC,
-        Zero,Zero,Zero,Zero, //#0101
+        One,One,One,One, //#0101
         LOC,
         Zero,Zero,Zero,Zero, //#0110
         LOC,
