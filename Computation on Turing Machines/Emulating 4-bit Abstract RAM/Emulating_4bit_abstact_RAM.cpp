@@ -1,6 +1,6 @@
 #include <iostream>
 #include <vector>
-#include <Turing.h>
+#include <Turing_Machine.h>
 
 
 enum states
@@ -194,7 +194,7 @@ int main()
     rules.add({ go, Send_register }, { store, Reset , Turing::right });
 
     //End Command
-    rules.add({ go, End }, { end, End , Turing::left });
+    rules.add({ go, End }, { go, End , Turing::right });// allowing go to pass the core will mean that go hits PC and the program will end
 
     //Define store
     rules.add({ store, REGISTER }, { store, REGISTER , Turing::right });//Skip
@@ -288,6 +288,10 @@ int main()
     rules.add({ go, Zero }, { go, Zero , Turing::right });//skip
     rules.add({ go, One }, { go, One , Turing::right });
     rules.add({ go, Blank }, { go, Blank , Turing::right });
+
+    rules.add({ go, REGISTER }, { go, REGISTER , Turing::right });
+    rules.add({ go, ACTIVE_REGISTER }, { go, ACTIVE_REGISTER , Turing::right });
+    rules.add({ go, PC }, { end, PC , Turing::right });//End Case
 
     //Define return to start
     rules.add({ return_to_start, Get_memory }, { return_to_start, Get_memory, Turing::left }); //skip
@@ -568,7 +572,7 @@ int main()
         LOC,
         One,One,One,One, //#0101
         LOC,
-        Zero,Zero,Zero,Zero, //#0110
+        One,One,Zero,Zero, //#0110
         LOC,
         One,Zero,Zero,Zero, //#0111
         LOC,
@@ -594,8 +598,20 @@ int main()
     Turing::Turing_Machine<states,symbols, 200> machine(end, rules); //Create a Machine with 200 tape segments that will end when state "end" is reached and that uses the rule set defined above
 
 
-
-    for (symbols item : machine.boot_up(input)) // On the Machine halting the contents of the tape left of the head is outputted
-        std::cout << static_cast<int>(item);
-
+    int contents{};
+    int reg_count{1};
+    for (symbols item : machine.boot_up(input))//Print contents of the registers
+    {
+        if (item == REGISTER or item == ACTIVE_REGISTER)
+        {
+            std::cout << "REGISTER " << reg_count << "\n";
+            contents = contents + 4;
+            ++reg_count;
+        }
+        else if (contents > 0)
+        {
+            std::cout << static_cast<int>(item) << "\n";
+            --contents;
+        }
+    }
 }
