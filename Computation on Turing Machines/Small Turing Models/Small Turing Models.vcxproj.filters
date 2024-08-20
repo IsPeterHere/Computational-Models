@@ -15,7 +15,10 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\Emulating 4-bit Abstract RAM\Trivial_example.cpp">
+    <ClCompile Include="Trivial_example.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Turing_Machine.cppm">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

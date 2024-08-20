@@ -1,6 +1,6 @@
 #include <iostream>
 #include <vector>
-#include <Turing_Machine.h>
+import Turing_Machine;
 
 
 enum states
