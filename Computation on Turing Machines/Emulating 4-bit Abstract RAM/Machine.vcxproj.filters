@@ -15,13 +15,14 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Emulating_4bit_abstact_RAM.cpp">
+    <ClCompile Include="Program_example.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Turing.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
+    <ClCompile Include="Emulating_4bit_RAM.cppm">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Turing_Machine.cppm">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
