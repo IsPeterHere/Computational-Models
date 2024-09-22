@@ -1,7 +1,5 @@
-
-#include <vector>
-
 import Turing_RAM;
+import <vector>;
 
 int main()
 {
