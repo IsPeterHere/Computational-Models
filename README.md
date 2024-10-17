@@ -5,7 +5,7 @@ The models created so far are:
  
 ## 1. Turing machine 
 
-The Module Turing_Machine.ixx defines a basic turing machine model (one in which a tape starting from 0 has infinite length in one direction ~ a.k.a. a large pre-specified length for progarming purposes). The following models extend this turing machine module to define more complicated programs.
+The Module Turing_Machine.ixx defines a basic turing machine model (one in which a tape starting from 0 has infinite length in one direction ~ a.k.a. a large pre-specified length for progarming purposes). The following projects extend this turing machine module to define more complicated systems.
 
 ### 1.1 Emulating a 4-bit RAM
 
@@ -30,7 +30,7 @@ The Module Emulating_4bit_RAM.ixx defines a 4-bit RAM that will run on the turin
 ### 1.2 Emulating a 4-bit RAM
 ~Unfinished
 ## 2. Finite automata
-The following projects aim to create modules that can create and run different types of finite automata so as to determine whether a given language is accepted.
+The following projects aim to create modules that can create different types of finite automata that ate cabable of determining whether a given language is accepted.
 
 ### 2.1 Determenistic finite automata (DFA)
 
