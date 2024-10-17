@@ -22,6 +22,8 @@ enum alphabet
 
 int main()
 {
+
+    //create the transition rule set
 	automata::Rules<states, alphabet>  rule_set{};
 
 	rule_set.add({ zero,a }, one);
@@ -33,9 +35,12 @@ int main()
 	rule_set.add({ one,b }, two);
 	rule_set.add({ two,b }, three);
 	rule_set.add({ three,b }, three);
-			
+
+	//create the DFA
 	automata::DFA<states, alphabet> dfa{ zero,{three},rule_set };
 
+
+	//See if the DFA accepts the following words
 	std::cout << static_cast<int>(dfa.accept({ a,b,a })) << "\n";
 	std::cout << static_cast<int>(dfa.accept({ a,b,a,a,a,b,b,a,a })) << "\n";
 	std::cout << static_cast<int>(dfa.accept({ a,b,b })) << "\n";
