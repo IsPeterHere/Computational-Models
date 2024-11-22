@@ -36,6 +36,4 @@ The following projects aim to create modules that can create different types of 
 
 ### 2.1 Determenistic finite automata (DFA)
 
-A deterministic finite automata is the simplest a
-
-nd most intuitive model. The Deterministic Finite Automata.ixx module defines a DFA, and ExampleDFA.cpp provides an example of defining a DFA and querying its language acceptance.
+A deterministic finite automata is one of the most intuitive model of automata, in which states ate deterministicly modified by the ordered input word. The Deterministic Finite Automata.ixx module defines a DFA, and ExampleDFA.cpp provides an example of defining a DFA and querying its language acceptance.
