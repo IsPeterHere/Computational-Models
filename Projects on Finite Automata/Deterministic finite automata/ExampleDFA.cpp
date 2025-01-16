@@ -24,7 +24,7 @@ int main()
 {
 
     //create the transition rule set
-	automata::Rules<states, alphabet>  rule_set{};
+	automata::DFARules<states, alphabet>  rule_set{};
 
 	rule_set.add({ zero,a }, one);
 	rule_set.add({ one,a }, one);

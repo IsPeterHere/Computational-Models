@@ -11,7 +11,7 @@ export
 	namespace automata
 	{
 		template <typename states_T, typename alphabet_T>
-		struct state_letter_pair
+		struct State_letter_pair
 		{
 			states_T state;
 			alphabet_T letter;
@@ -29,24 +29,25 @@ export
 
 			}
 
-			bool operator==(const state_letter_pair< states_T, alphabet_T>& other) const {
+			bool operator==(const State_letter_pair< states_T, alphabet_T>& other) const {
 				return state == other.state && letter == other.letter;
 			}
 		};
 
 		template <typename states_T, typename alphabet_T>
-		struct Rules
+		struct DFARules
 		{
-			std::unordered_map<state_letter_pair<states_T, alphabet_T>, states_T> map{};
+			std::unordered_map<State_letter_pair<states_T, alphabet_T>, states_T> map{};
 
-			void add(state_letter_pair<states_T, alphabet_T> state_and_letter, states_T next_state)
+			void add(State_letter_pair<states_T, alphabet_T> state_and_letter, states_T next_state)
 			{
 				map[state_and_letter] = next_state;
 			}
 
-			states_T operator[](state_letter_pair<states_T, alphabet_T>& key)
+			states_T operator[](State_letter_pair<states_T, alphabet_T>& key)
 			{
-				if (auto search = map.find(key); search != map.end())
+				auto search = map.find(key);
+				if (search != map.end())
 				{
 
 					return (*search).second;
@@ -64,7 +65,7 @@ export
 			std::queue<alphabet_T> current_word{};
 			states_T state;
 
-			DFA(states_T start_state, std::unordered_set<states_T> finish_states, Rules<states_T, alphabet_T> rule_set) : starting_state{ start_state }, finishing_states{ finish_states }, rules{ rule_set }
+			DFA(states_T start_state, std::unordered_set<states_T> finish_states, DFARules<states_T, alphabet_T> rule_set) : starting_state{ start_state }, finishing_states{ finish_states }, rules{ rule_set }
 			{
 			}
 
@@ -79,7 +80,7 @@ export
 				return accept(proper_input);
 			}
 
-			bool accept(std::queue<alphabet_T>& input)
+			bool accept(std::queue<alphabet_T> input)
 			{
 				set_up(input);
 				while (current_word.size() > 0) step();
@@ -100,7 +101,7 @@ export
 			void step()
 			{
 				alphabet_T front{ current_word.front() };
-				state_letter_pair<states_T,alphabet_T> pair{ state, front };
+				State_letter_pair<states_T, alphabet_T> pair{ state, front };
 				state = rules[pair];
 				current_word.pop();
 			}
@@ -114,9 +115,10 @@ export
 			}
 		private:
 			states_T starting_state;
+			std::unordered_set<states_T> starting_states;
 			std::unordered_set<states_T> finishing_states;
 
-			Rules<states_T, alphabet_T> rules;
+			DFARules<states_T, alphabet_T> rules;
 
 		};
 
@@ -124,13 +126,14 @@ export
 
 
 	template<typename states_T, typename alphabet_T>
-	struct std::hash<automata::state_letter_pair< states_T, alphabet_T>>
+	struct std::hash<automata::State_letter_pair< states_T, alphabet_T>>
 	{
-		std::size_t operator()(const automata::state_letter_pair< states_T, alphabet_T>& s) const noexcept
+		std::size_t operator()(const automata::State_letter_pair< states_T, alphabet_T>& s) const noexcept
 		{
 			std::size_t h = s.hash();
 			return h;
 		}
 	};
-}
 
+
+}
