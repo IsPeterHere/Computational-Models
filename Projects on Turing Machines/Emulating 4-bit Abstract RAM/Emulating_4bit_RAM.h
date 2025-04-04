@@ -1,12 +1,11 @@
+#pragma once
 
-export module Turing_RAM;
-export import Turing_Machine;
-import Turing_Machine;
-import <iostream>;
-import <vector>;
+#include"Turing_Machine.h"
+#include<iostream>
+#include<vector>
 
 
-export namespace RAM_4bit
+namespace RAM_4bit
 {
     enum states
     {
@@ -129,7 +128,7 @@ export namespace RAM_4bit
 
     };
 
-    void add_ruleset(Turing::Rules<states, symbols>& rules)
+    inline void add_ruleset(Turing::Rules<states, symbols>& rules)
     {
         //DEFINE GROUPS 
         std::vector<states> Q_Segments_full
@@ -537,7 +536,7 @@ export namespace RAM_4bit
 
 
 
-    void boot_up(std::vector<int>& program)
+    inline void boot_up(std::vector<int>& program)
     {
 
 

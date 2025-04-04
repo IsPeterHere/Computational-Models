@@ -1,5 +1,5 @@
-import Turing_RAM;
-import <vector>;
+#include"Emulating_4bit_RAM.h"
+#include<vector>
 
 int main()
 {

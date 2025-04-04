@@ -1,11 +1,11 @@
+#pragma once
 
-export module Turing_Machine;
+#include<vector>
+#include<cassert>
+#include<unordered_map>
 
-import <vector>;
-import <cassert>;
-import <unordered_map>;
 
-export namespace Turing
+namespace Turing
 {
     //In this model the Turing machine can move 1 left/right or stay in place.
     enum Movement
