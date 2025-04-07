@@ -39,5 +39,5 @@ int main()
 			1, 1, 1, 0,
 	};
 
-	RAM_4bit::boot_up(program);
+	RAM_4bit::run(program);
 }

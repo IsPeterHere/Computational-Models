@@ -3,112 +3,135 @@
 #include<vector>
 #include<cassert>
 #include<unordered_map>
+#include<stdexcept>
 
 
 namespace Turing
 {
     //In this model the Turing machine can move 1 left/right or stay in place.
-    enum Movement
+    enum Movement :size_t
     {
-        stay,
-        left,
-        right,
+        STAY,
+        LEFT,
+        RIGHT,
+    };
+
+    //The First Symbols Will always Correspond to the following
+    enum Fundemental_Symbols :size_t
+    {
+        BLANK,
+        LEFTMOST,
+
+        NUMBER_OF_FUNDEMENTAL_SYMBOLS
+    };
+
+    //The First States Will always Correspond to the following
+    enum Fundemental_States :size_t
+    {
+        HALT,
+        ACCEPT,
+        REJECT,
+
+        NUMBER_OF_FUNDEMENTAL_STATES
     };
 
     //The Turing machine works by mapping (state,symbol) pairs to a new (state,symbol,movement) triple.
-    template <typename sate_set_T, typename symbol_set_T>
     struct State_Symbol
     {
-        sate_set_T state;
-        symbol_set_T symbol;
+        size_t state;
+        size_t symbol;
 
         //The state symbol pair must be hashable so it can be used as a key in the rules map
         size_t hash() const {
-            if (static_cast<size_t>(state) > static_cast<size_t>(symbol))
+            if (state > symbol)
             {
-                return static_cast<size_t>(state) * static_cast<size_t>(state) + static_cast<size_t>(state) + static_cast<size_t>(symbol);
+                return state * state + state + symbol;
             }
             else
             {
-                return static_cast<size_t>(symbol) * static_cast<size_t>(symbol) + static_cast<size_t>(state);
+                return symbol * symbol + state;
             }
 
         }
 
-        bool operator==(const State_Symbol< sate_set_T, symbol_set_T>& other) const {
+        bool operator==(const State_Symbol& other) const {
             return state == other.state && symbol == other.symbol;
         }
     };
 
-    //~~The Turing machine works by mapping (state,symbol) pairs to a new (state,symbol,movement) triple.
-    template <typename sate_set_T, typename symbol_set_T>
+}
+
+template<>
+struct std::hash<Turing::State_Symbol>
+{
+    std::size_t operator()(const Turing::State_Symbol& s) const noexcept
+    {
+        std::size_t h = s.hash();
+        return h;
+    }
+};
+
+namespace Turing
+{
+
     struct State_Symbol_Movement
     {
-        sate_set_T state;
-        symbol_set_T symbol;
-        Movement move;
+        size_t state;
+        size_t symbol;
+        size_t move;
     };
 
     //The rules class contains and managers the unordered map between the pairs and the triples (see above)
-    template <typename sate_set_T, typename symbol_set_T>
     struct Rules
     {
-        using SS = State_Symbol<sate_set_T, symbol_set_T>;
-        using SSM = State_Symbol_Movement<sate_set_T, symbol_set_T>;
-
-        std::unordered_map<SS, SSM> map{};
+        std::unordered_map<State_Symbol, State_Symbol_Movement> map{};
 
         //add new entry
-        void add(SS State_symbolKey, SSM State_symbol_MoveValue)
+        void add(State_Symbol State_symbolKey, State_Symbol_Movement State_symbol_MoveValue)
         {
             map[State_symbolKey] = State_symbol_MoveValue;
         }
         //add new entry with a list of state keys (i.e one new rule for every state)
-        void add(std::vector<sate_set_T>& State_Keys, symbol_set_T Symbol_key, SSM State_symbol_MoveValue)
+        void add(std::vector<size_t>& State_Keys, size_t Symbol_key, State_Symbol_Movement State_symbol_MoveValue)
         {
-            for (SS State_Key : State_Keys)
+            for (size_t State_Key : State_Keys)
                 map[{State_Key, Symbol_key}] = State_symbol_MoveValue;
         }
         //add new entry with a list of state keys and state value (i.e one new rule for every pair of state)
-        void add(std::vector<sate_set_T>& State_Keys, symbol_set_T Symbol_key, std::vector<sate_set_T>& State_Values, symbol_set_T Symbol_Value, Movement Move_Value)
+        void add(std::vector<size_t>& State_Keys, size_t Symbol_key, std::vector<size_t>& State_Values, size_t Symbol_Value, size_t Move_Value)
         {
             for (int i{}; i < std::ssize(State_Keys); ++i)
                 map[{State_Keys[i], Symbol_key}] = { State_Values[i],Symbol_Value,Move_Value };
         }
 
         //operator [] to access rules with a pair and return a triple
-        SSM& operator[](SS& key)
+        State_Symbol_Movement& operator[](State_Symbol& key)
         {
-            if (auto search = map.find(key); search != map.end())
-            {
-
-                return (*search).second;
-            }
+            if (auto search = map.find(key); search != map.end()) return (*search).second;
+            throw std::runtime_error("Missing Rule");
         }
     };
 
-    template <typename sate_set_T, typename symbol_set_T, int tape_size_T>
     class Turing_Machine
     {
     public:
 
-        using RuleSet = Rules<sate_set_T, symbol_set_T>;
-        using SS = State_Symbol<sate_set_T, symbol_set_T>;
-        using SSM = State_Symbol_Movement<sate_set_T, symbol_set_T>;
+        using RuleSet = Rules;
+        using SS = State_Symbol;
+        using SSM = State_Symbol_Movement;
 
-        Turing_Machine(sate_set_T starting_state, sate_set_T finishing_state, RuleSet& rules)
+        Turing_Machine(RuleSet& rules, size_t start_state)
             :
-            start_state{ starting_state },
-            final_state{ finishing_state },
-            transformation_rules{ rules }
+            transformation_rules{ rules },
+            start_state{ start_state }
         {
         }
 
         //The return will be a vector containg symbols taken from the leftmost cell to the position if the machines head.
-        std::vector<symbol_set_T> boot_up(std::vector<symbol_set_T>& input)
+        void boot_up(std::vector<size_t>& input)
         {
-            assert((std::size(input) < tape_size) && "Input sequence is longer than given tape length");
             input_sequence = &input;
+            tape = std::vector<size_t>(std::ssize(*input_sequence));
 
             reset();
 
@@ -117,31 +140,33 @@ namespace Turing
             {
                 tape[i] = (*input_sequence)[i];
             }
-            while (state != final_state)
-            {
-                step();
-            }
+        }
 
-            return std::vector<symbol_set_T>(tape.begin(), tape.end() - (tape_size - position));
+        void run()
+        {
+            while (!check_done()) step();
+        }
+
+        std::vector<size_t>* get_tape()
+        {
+            return &tape;
         }
 
     private:
         //Pre-Run-Time Setup
-        std::vector<symbol_set_T>* input_sequence{};
-        const std::size_t tape_size{ static_cast<std::size_t>(tape_size_T) };
-        sate_set_T final_state;
-        sate_set_T start_state;
+        std::vector<size_t>* input_sequence{};
+        size_t start_state;
         RuleSet transformation_rules;
 
         //Run-Time Enviroment
         int position{ 0 };
-        std::vector<symbol_set_T> tape{ std::vector<symbol_set_T>(tape_size) };
-        sate_set_T state{};
+        std::vector<size_t> tape;
+        size_t state{};
 
         void reset()
         {
             position = 0;
-            std::fill(tape.begin(), tape.end(), static_cast<symbol_set_T>(0));
+            std::fill(tape.begin(), tape.end(), static_cast<size_t>(0));
             state = start_state;
         }
 
@@ -153,33 +178,36 @@ namespace Turing
             state = next_step.state;
             tape[position] = next_step.symbol;
 
-            switch (next_step.move)
+            switch (static_cast<Movement>(next_step.move))
             {
-            case(Movement::stay):
+            case(Movement::STAY):
                 break;
-            case(Movement::left):
+            case(Movement::LEFT):
                 --position;
                 assert((position >= 0) && "Head attempted to move out of tape : left");
                 break;
-            case(Movement::right):
+            case(Movement::RIGHT):
                 ++position;
-                assert((position < tape_size) && "Head attempted to move out of tape : right");
+                if (position >= std::ssize(tape)) tape.push_back(BLANK);
                 break;
             };
 
+        }
+
+        bool check_done()
+        {
+            switch (state)
+            {
+            case HALT:
+            case ACCEPT:
+            case REJECT:
+                return true;
+            default:
+                return false;
+            }
         }
 
 
     };
 }
 
-
-template<typename sate_set_T, typename symbol_set_T>
-struct std::hash<Turing::State_Symbol< sate_set_T, symbol_set_T>>
-{
-    std::size_t operator()(const Turing::State_Symbol< sate_set_T, symbol_set_T>& s) const noexcept
-    {
-        std::size_t h = s.hash();
-        return h;
-    }
-};
