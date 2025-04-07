@@ -18,6 +18,13 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Turing_Machine.h" />
+    <ClInclude Include="Emulating_4bit_RAM.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Program_example.cpp" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
@@ -141,11 +148,6 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="Emulating_4bit_RAM.ixx" />
-    <ClCompile Include="Program_example.cpp" />
-    <ClCompile Include="Turing_Machine.ixx" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
