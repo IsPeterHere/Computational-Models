@@ -18,12 +18,21 @@
     <ClInclude Include="Headers\Turing_Machine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Headers\Emulating_4bit_RAM.h">
+    <ClInclude Include="Headers\NFAutomata.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Examples\Emulating RAM Example.cpp">
+    <ClCompile Include="ComM.h">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Turing.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="NFA.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ExampleNFA.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

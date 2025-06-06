@@ -103,7 +103,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)/Headers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)/Headers;C:\Users\peter\Documents\c++ libaries\eigen-3.4.0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -125,11 +125,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Headers\Emulating_4bit_RAM.h" />
+    <ClInclude Include="Headers\NFAutomata.h" />
     <ClInclude Include="Headers\Turing_Machine.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Examples\Emulating RAM Example.cpp" />
+    <ClCompile Include="ComM.h" />
+    <ClCompile Include="ExampleNFA.cpp" />
+    <ClCompile Include="NFA.cpp" />
+    <ClCompile Include="Turing.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
