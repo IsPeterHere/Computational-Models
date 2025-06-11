@@ -15,11 +15,22 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ExampleNFA.cpp">
+    <ClInclude Include="Headers\Turing_Machine.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="ComM.h">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Turing.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="NFAutomata.h">
-      <Filter>Header Files</Filter>
+    <ClCompile Include="NFA.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ExampleNFA.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
