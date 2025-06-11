@@ -18,9 +18,6 @@
     <ClInclude Include="Headers\Turing_Machine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Headers\NFAutomata.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ComM.h">

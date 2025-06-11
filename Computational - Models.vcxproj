@@ -125,7 +125,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Headers\NFAutomata.h" />
     <ClInclude Include="Headers\Turing_Machine.h" />
   </ItemGroup>
   <ItemGroup>

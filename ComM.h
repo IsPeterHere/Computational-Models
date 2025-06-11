@@ -1,3 +1,4 @@
+#pragma once
 #include<unordered_map>
 #include<unordered_set>
 #include<Eigen/Sparse>
@@ -5,6 +6,7 @@
 #include<queue>
 #include<stdexcept>
 #include<cassert>
+
 
 
 
@@ -49,7 +51,20 @@ namespace Turing
 
         bool operator==(const State_Symbol& other) const { return state == other.state && symbol == other.symbol; }
     };
+}
 
+template<>
+struct std::hash<Turing::State_Symbol>
+{
+    std::size_t operator()(const Turing::State_Symbol& s) const noexcept
+    {
+        std::size_t h = s.hash();
+        return h;
+    }
+};
+
+namespace Turing
+{
     struct State_Symbol_Movement
     {
         size_t state;
@@ -72,11 +87,7 @@ namespace Turing
         void add(std::vector<size_t>& State_Keys, size_t Symbol_key, std::vector<size_t>& State_Values, size_t Symbol_Value, size_t Move_Value);
 
         //operator [] to access rules with a pair and return a triple
-        State_Symbol_Movement& operator[](State_Symbol& key)
-        {
-            if (auto search = map.find(key); search != map.end()) return (*search).second;
-            throw std::runtime_error("Missing Rule");
-        }
+        State_Symbol_Movement& operator[](State_Symbol& key);
     };
 
     class Turing_Machine
@@ -117,115 +128,50 @@ namespace Turing
 
 namespace Automata
 {
-	template <typename states_T>
 	struct State_state_pair
 	{
-		states_T state1;
-		states_T state2;
+		size_t state1;
+		size_t state2;
 
 		size_t hash() const;
 
-		bool operator==(const State_state_pair< states_T>& other) const { return state1 == other.state1 && state2 == other.state2; }
+		bool operator==(const State_state_pair& other) const { return state1 == other.state1 && state2 == other.state2; }
 	};
 
 
-	template <typename states_T, typename alphabet_T>
 	struct NFARules
 	{
-		using State_Transitions = std::vector<State_state_pair<states_T>>;
+		using State_Transitions = std::vector<State_state_pair>;
+        using alphabet_T = size_t;
 
-		std::unordered_map<alphabet_T, std::vector<State_state_pair<states_T>>> map{};
+		std::unordered_map<alphabet_T, State_Transitions> map{};
 
-		void add(alphabet_T letter, std::vector<State_state_pair<states_T>>& state_pairs)
-		{
-			map[letter] = state_pairs;
-		}
+        void add(alphabet_T letter, State_Transitions& state_pairs) { map[letter] = state_pairs; }
 
-		std::vector<State_state_pair<states_T>> operator[](alphabet_T& key)
-		{
-			auto search{ map.find(key) };
-			if (search != map.end())
-			{
-				return (*search).second;
-			}
-			return {};
-		}
+        State_Transitions operator[](alphabet_T& key);
 
 	};
 
-	template <typename states_T, typename alphabet_T, int STATES_LENGHT>
 	class NFA
 	{
 	public:
+        using alphabet_T = size_t;
+        using states_T = size_t;
 
-		NFA(std::vector<states_T> starting_states, std::vector<states_T> finishing_states, NFARules<states_T, alphabet_T> rule_set) : rules{ rule_set }
-		{
-			std::vector<Eigen::Triplet<double>> starting_triplet_List;
-			starting_triplet_List.reserve(starting_states.size());
-			for (states_T state : starting_states)
-				starting_triplet_List.push_back({ 0, static_cast<int>(state), 1 });
+        NFA(int number_of_states, std::vector<states_T> starting_states, std::vector<states_T> finishing_states, NFARules rule_set);
 
-			initial_vec.setFromTriplets(starting_triplet_List.begin(), starting_triplet_List.end());
-
-			std::vector<Eigen::Triplet<double>> finishing_triplet_List;
-			finishing_triplet_List.reserve(finishing_states.size());
-			for (states_T state : finishing_states)
-				finishing_triplet_List.push_back({ static_cast<int>(state),0, 1 });
-
-			final_vec.setFromTriplets(finishing_triplet_List.begin(), finishing_triplet_List.end());
-		}
-
-		bool accept(std::vector<alphabet_T> input)
-		{
-			std::queue<alphabet_T> proper_input{};
-			for (alphabet_T item : input)
-				proper_input.push(item);
-			return accept(proper_input);
-		}
-
-		bool accept(std::queue<alphabet_T>& word)
-		{
-
-			Eigen::SparseMatrix<int> identifying_morphism{ step(word) };
-			while (word.size() > 0) identifying_morphism = identifying_morphism * step(word);
-
-			Eigen::SparseMatrix<int> result = (initial_vec * identifying_morphism * final_vec);
-			return (result.coeffRef(0, 0) > 0);
-
-		}
+        bool accept(std::vector<alphabet_T> input);
+        bool accept(std::queue<alphabet_T>& word);
 
 	private:
+        int number_of_states;
 		std::queue<alphabet_T> input_word;
-		NFARules<states_T, alphabet_T> rules;
+		NFARules rules;
 
-		Eigen::SparseMatrix<int> initial_vec{ 1, STATES_LENGHT };
-		Eigen::SparseMatrix<int> final_vec{ STATES_LENGHT, 1 };
+		Eigen::SparseMatrix<int> initial_vec;
+		Eigen::SparseMatrix<int> final_vec;
 
-		Eigen::SparseMatrix<int> step(std::queue<alphabet_T>& word)
-		{
-			alphabet_T letter{ word.front() };
-			word.pop();
-
-			std::vector<Eigen::Triplet<double>> tripletList;
-			tripletList.reserve(rules[letter].size());
-			for (State_state_pair<states_T> state_pair : rules[letter])
-				tripletList.push_back({ static_cast<int>(state_pair.state1), static_cast<int>(state_pair.state2), 1 });
-
-			Eigen::SparseMatrix<int> character_morphism{ STATES_LENGHT, STATES_LENGHT };
-			character_morphism.setFromTriplets(tripletList.begin(), tripletList.end());
-			return character_morphism;
-		}
+        Eigen::SparseMatrix<int> step(std::queue<alphabet_T>& word);
 	};
 
 }
-
-
-template<typename states_T>
-struct std::hash<Automata::State_state_pair< states_T>>
-{
-	std::size_t operator()(const Automata::State_state_pair< states_T>& s) const noexcept
-	{
-		std::size_t h = s.hash();
-		return h;
-	}
-};

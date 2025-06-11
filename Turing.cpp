@@ -1,15 +1,5 @@
 #include "comM.h"
 
-template<>
-struct std::hash<Turing::State_Symbol>
-{
-    std::size_t operator()(const Turing::State_Symbol& s) const noexcept
-    {
-        std::size_t h = s.hash();
-        return h;
-    }
-};
-
 size_t Turing::State_Symbol::hash() const
 {
     if (state > symbol)
@@ -18,8 +8,11 @@ size_t Turing::State_Symbol::hash() const
         return symbol * symbol + state;
 }
 
-
-
+Turing::State_Symbol_Movement& Turing::Rules::operator[](Turing::State_Symbol& key)
+{
+    if (auto search = map.find(key); search != map.end()) return (*search).second;
+    throw std::runtime_error("Missing Rule");
+}
 
 void Turing::Rules::add(State_Symbol State_symbolKey, State_Symbol_Movement State_symbol_MoveValue)
 {
