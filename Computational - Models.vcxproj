@@ -129,8 +129,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ComM.h" />
-    <ClCompile Include="ExampleNFA.cpp" />
-    <ClCompile Include="NFA.cpp" />
+    <ClCompile Include="Example.cpp" />
     <ClCompile Include="Turing.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
