@@ -125,11 +125,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="ComM.h" />
     <ClInclude Include="Headers\Turing_Machine.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ComM.h" />
     <ClCompile Include="Example.cpp" />
+    <ClCompile Include="NFA.cpp" />
     <ClCompile Include="Turing.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
