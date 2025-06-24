@@ -200,6 +200,7 @@ namespace Automata
 
         void addTerm(boost::dynamic_bitset<>* alpha, boost::dynamic_bitset<>* beta)
         {
+            assert(alpha->size() == size && beta->size() == size && "Terms definitions not correct size");
             terms.push_back({ alpha,beta });
         }
 
@@ -210,6 +211,7 @@ namespace Automata
                     return 1;
             return 0;
         }
+
         size_t size;
         std::vector<Disjunctive_Normal_Term> terms;
 
@@ -237,7 +239,7 @@ namespace Automata
             NOT
         };
 
-        using states_T = size_t;
+        using states_T = int;
 
         Boolean_Function(states_T term, Operation operation = Operation::NOT) : type(Type::STATE), operation(operation), state1(term)
         {
@@ -251,6 +253,7 @@ namespace Automata
         }
         Boolean_Function(states_T term1, states_T term2, Operation operation) : type(Type::STATE_STATE), operation(operation), state1(term1), state2(term2){}
         Boolean_Function(states_T term1, Boolean_Function* term2, Operation operation) : type(Type::STATE_FUNC), operation(operation), state1(term1), func2(term2){}
+        Boolean_Function(Boolean_Function* term2, states_T term1, Operation operation) : type(Type::STATE_FUNC), operation(operation), state1(term1), func2(term2) {}
         Boolean_Function(Boolean_Function* term1, Boolean_Function* term2, Operation operation) : type(Type::FUNC_FUNC), operation(operation), func1(term1), func2(term2){}
 
 
@@ -270,8 +273,8 @@ namespace Automata
 
     class r_AFA_Transition_Function
     {
-        using alphabet_T = size_t;
-        using states_T = size_t;
+        using alphabet_T = int;
+        using states_T = int;
 
         void add(states_T state, alphabet_T letter, Boolean_Function bool_func)
         {
@@ -283,8 +286,8 @@ namespace Automata
     {
     public:
 
-        using alphabet_T = size_t;
-        using states_T = size_t;
+        using alphabet_T = int;
+        using states_T = int;
 
         r_AFA(int number_of_states, states_T starting_state, std::vector<states_T> finishing_states, r_AFA_Transition_Function transition_function);
     };
