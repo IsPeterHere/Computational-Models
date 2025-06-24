@@ -3,11 +3,11 @@
 #include<unordered_set>
 #include<Eigen/Sparse>
 #include<vector>
+#include<array>
 #include<queue>
 #include<stdexcept>
 #include<cassert>
-
-
+#include <boost/dynamic_bitset.hpp>
 
 
 
@@ -130,8 +130,10 @@ namespace Automata
 {
 	struct State_state_pair
 	{
-		size_t state1;
-		size_t state2;
+        using states_T = size_t;
+
+        states_T state1;
+        states_T state2;
 
 		size_t hash() const;
 
@@ -173,5 +175,118 @@ namespace Automata
 
         Eigen::SparseMatrix<int> step(std::queue<alphabet_T>& word);
 	};
+
+
+
+
+
+    struct Disjunctive_Normal_Term
+    {
+        
+        boost::dynamic_bitset<>* alpha; //if x or ¬x appears
+        boost::dynamic_bitset<>* beta;  //if x appears
+
+        bool eval(boost::dynamic_bitset<>* inputs) const
+        {
+            if (((*inputs & *alpha)^*beta).none())
+                return 1;
+            return 0;
+        }
+    };
+
+    class Disjunctive_Normal_Form
+    {
+        Disjunctive_Normal_Form(size_t size) : size(size) {}
+
+        void addTerm(boost::dynamic_bitset<>* alpha, boost::dynamic_bitset<>* beta)
+        {
+            terms.push_back({ alpha,beta });
+        }
+
+        bool eval(boost::dynamic_bitset<>* inputs)
+        {
+            for (Disjunctive_Normal_Term &term : terms)
+                if (term.eval(inputs))
+                    return 1;
+            return 0;
+        }
+        size_t size;
+        std::vector<Disjunctive_Normal_Term> terms;
+
+    };
+
+
+    class Boolean_Function
+    {
+    public:
+
+        enum class Type
+        {
+            STATE,
+            FUNC,
+
+            STATE_STATE,
+            STATE_FUNC,
+            FUNC_FUNC
+        };
+
+        enum class Operation
+        {
+            AND,
+            OR,
+            NOT
+        };
+
+        using states_T = size_t;
+
+        Boolean_Function(states_T term, Operation operation = Operation::NOT) : type(Type::STATE), operation(operation), state1(term)
+        {
+            if (operation != Operation::NOT)
+                throw std::runtime_error("Boolean function with single term must have operation::NOT");
+        }
+        Boolean_Function(Boolean_Function* term, Operation operation) : type(Type::FUNC), operation(operation), func1(term)
+        {
+            if (operation != Operation::NOT)
+                throw std::runtime_error("Boolean function with single term must have operation::NOT");
+        }
+        Boolean_Function(states_T term1, states_T term2, Operation operation) : type(Type::STATE_STATE), operation(operation), state1(term1), state2(term2){}
+        Boolean_Function(states_T term1, Boolean_Function* term2, Operation operation) : type(Type::STATE_FUNC), operation(operation), state1(term1), func2(term2){}
+        Boolean_Function(Boolean_Function* term1, Boolean_Function* term2, Operation operation) : type(Type::FUNC_FUNC), operation(operation), func1(term1), func2(term2){}
+
+
+        
+        
+
+    private:
+        Type type;
+        Operation operation;
+
+        [[maybe_unused]] states_T state1;
+        [[maybe_unused]] states_T state2;
+
+        [[maybe_unused]] Boolean_Function* func1;
+        [[maybe_unused]] Boolean_Function* func2;
+    };
+
+    class r_AFA_Transition_Function
+    {
+        using alphabet_T = size_t;
+        using states_T = size_t;
+
+        void add(states_T state, alphabet_T letter, Boolean_Function bool_func)
+        {
+
+        }
+    };
+
+    class r_AFA
+    {
+    public:
+
+        using alphabet_T = size_t;
+        using states_T = size_t;
+
+        r_AFA(int number_of_states, states_T starting_state, std::vector<states_T> finishing_states, r_AFA_Transition_Function transition_function);
+    };
 
 }
