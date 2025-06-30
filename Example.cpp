@@ -52,5 +52,7 @@ int main()
 	auto c = ABF(&b,1, OR);
 	auto d = ABF(&c,2, AND);
 
+
+
 	return 0;
 }

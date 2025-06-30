@@ -1,15 +1,15 @@
 #include"ComM.h"
 
-size_t Automata::State_state_pair::hash() const
+size_t Automata::Pair::hash() const
 {
-	if (static_cast<size_t>(state1) > static_cast<size_t>(state2))
-		return static_cast<size_t>(state1) * static_cast<size_t>(state1) + static_cast<size_t>(state1) + static_cast<size_t>(state2);
+	if (static_cast<size_t>(item1) > static_cast<size_t>(item2))
+		return static_cast<size_t>(item1) * static_cast<size_t>(item1) + static_cast<size_t>(item1) + static_cast<size_t>(item2);
 	else
-		return static_cast<size_t>(state2) * static_cast<size_t>(state2) + static_cast<size_t>(state1);
+		return static_cast<size_t>(item2) * static_cast<size_t>(item2) + static_cast<size_t>(item1);
 
 }
 
-std::vector<Automata::State_state_pair> Automata::NFARules::operator[](alphabet_T& key)
+std::vector<Automata::Pair> Automata::NFARules::operator[](alphabet_T& key)
 {
 	auto search{ map.find(key) };
 	if (search != map.end())
@@ -64,8 +64,8 @@ Eigen::SparseMatrix<int> Automata::NFA::step(std::queue<alphabet_T>& word)
 
 	std::vector<Eigen::Triplet<double>> tripletList;
 	tripletList.reserve(rules[letter].size());
-	for (State_state_pair state_pair : rules[letter])
-		tripletList.push_back({ static_cast<int>(state_pair.state1), static_cast<int>(state_pair.state2), 1 });
+	for (Pair state_pair : rules[letter])
+		tripletList.push_back({ static_cast<int>(state_pair.item1), static_cast<int>(state_pair.item2), 1 });
 
 	Eigen::SparseMatrix<int> character_morphism{ number_of_states, number_of_states };
 	character_morphism.setFromTriplets(tripletList.begin(), tripletList.end());
@@ -73,9 +73,9 @@ Eigen::SparseMatrix<int> Automata::NFA::step(std::queue<alphabet_T>& word)
 }
 
 template<>
-struct std::hash<Automata::State_state_pair>
+struct std::hash<Automata::Pair>
 {
-	std::size_t operator()(const Automata::State_state_pair& s) const noexcept
+	std::size_t operator()(const Automata::Pair& s) const noexcept
 	{
 		std::size_t h = s.hash();
 		return h;

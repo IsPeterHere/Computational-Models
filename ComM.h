@@ -128,22 +128,22 @@ namespace Turing
 
 namespace Automata
 {
-	struct State_state_pair
+	struct Pair
 	{
         using states_T = size_t;
 
-        states_T state1;
-        states_T state2;
+        states_T item1;
+        states_T item2;
 
 		size_t hash() const;
 
-		bool operator==(const State_state_pair& other) const { return state1 == other.state1 && state2 == other.state2; }
+		bool operator==(const Pair& other) const { return item1 == other.item1 && item2 == other.item2; }
 	};
 
 
 	struct NFARules
 	{
-		using State_Transitions = std::vector<State_state_pair>;
+		using State_Transitions = std::vector<Pair>;
         using alphabet_T = size_t;
 
 		std::unordered_map<alphabet_T, State_Transitions> map{};
@@ -256,7 +256,10 @@ namespace Automata
         Boolean_Function(Boolean_Function* term2, states_T term1, Operation operation) : type(Type::STATE_FUNC), operation(operation), state1(term1), func2(term2) {}
         Boolean_Function(Boolean_Function* term1, Boolean_Function* term2, Operation operation) : type(Type::FUNC_FUNC), operation(operation), func1(term1), func2(term2){}
 
+        Disjunctive_Normal_Form convert_to_disjunctive_normal_form()
+        {
 
+        }
         
         
 
@@ -264,22 +267,37 @@ namespace Automata
         Type type;
         Operation operation;
 
-        [[maybe_unused]] states_T state1;
-        [[maybe_unused]] states_T state2;
+        [[maybe_unused]] states_T state1{};
+        [[maybe_unused]] states_T state2{};
 
-        [[maybe_unused]] Boolean_Function* func1;
-        [[maybe_unused]] Boolean_Function* func2;
+        [[maybe_unused]] Boolean_Function* func1{ null };
+        [[maybe_unused]] Boolean_Function* func2{ null };
     };
+
+
+
 
     class r_AFA_Transition_Function
     {
         using alphabet_T = int;
         using states_T = int;
+        using alphabet_state_pair = Pair;
 
-        void add(states_T state, alphabet_T letter, Boolean_Function bool_func)
+        std::unordered_map<alphabet_state_pair, Disjunctive_Normal_Form> map{};
+
+        void add(states_T state, alphabet_T letter, Disjunctive_Normal_Form disjuctive_form)
         {
-
+            map[{state, letter}] = disjuctive_form;
         }
+
+        Disjunctive_Normal_Form operator[](alphabet_state_pair& key)
+        {
+            auto search{ map.find(key) };
+            if (search != map.end())
+                return (*search).second;
+            return {};
+        }
+
     };
 
     class r_AFA
