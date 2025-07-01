@@ -160,7 +160,7 @@ namespace Automata
         using alphabet_T = size_t;
         using states_T = size_t;
 
-        NFA(int number_of_states, std::vector<states_T> starting_states, std::vector<states_T> finishing_states, NFARules rule_set);
+        NFA(int number_of_states, std::vector<states_T> starting_states, std::vector<states_T> finishing_states, NFARules* rule_set);
 
         bool accept(std::vector<alphabet_T> input);
         bool accept(std::queue<alphabet_T>& word);
@@ -168,7 +168,7 @@ namespace Automata
 	private:
         int number_of_states;
 		std::queue<alphabet_T> input_word;
-		NFARules rules;
+		NFARules* rules;
 
 		Eigen::SparseMatrix<int> initial_vec;
 		Eigen::SparseMatrix<int> final_vec;
@@ -183,12 +183,12 @@ namespace Automata
     struct Disjunctive_Normal_Term
     {
         
-        boost::dynamic_bitset<>* alpha; //if x or ¬x appears
-        boost::dynamic_bitset<>* beta;  //if x appears
+        boost::dynamic_bitset<> alpha; //if x or ¬x appears
+        boost::dynamic_bitset<> beta;  //if x appears
 
         bool eval(boost::dynamic_bitset<>* inputs) const
         {
-            if (((*inputs & *alpha)^*beta).none())
+            if (((*inputs & alpha)^beta).none())
                 return 1;
             return 0;
         }
@@ -196,12 +196,28 @@ namespace Automata
 
     class Disjunctive_Normal_Form
     {
+    public:
         Disjunctive_Normal_Form(size_t size) : size(size) {}
 
-        void addTerm(boost::dynamic_bitset<>* alpha, boost::dynamic_bitset<>* beta)
+        void add_term(Disjunctive_Normal_Term term)
         {
-            assert(alpha->size() == size && beta->size() == size && "Terms definitions not correct size");
-            terms.push_back({ alpha,beta });
+            assert(term.alpha.size() == size && term.beta.size() == size && "Terms definitions not correct size");
+            assert(term.alpha.at(0) == 0 && term.beta.at(0) == 0 && "NO term can depend on S (( r-AFA are a variation of s-AFA ))");
+            terms.push_back(term);
+        }
+
+        void set_true()
+        {
+            terms.clear();
+            terms.push_back({ {size,size} });
+        }
+
+        void set_false()
+        {
+            terms.clear();
+            Disjunctive_Normal_Term DNT {{ size , size }};
+            DNT.beta.flip();
+            terms.push_back(DNT);
         }
 
         bool eval(boost::dynamic_bitset<>* inputs)
@@ -212,6 +228,7 @@ namespace Automata
             return 0;
         }
 
+    private:
         size_t size;
         std::vector<Disjunctive_Normal_Term> terms;
 
@@ -270,8 +287,8 @@ namespace Automata
         [[maybe_unused]] states_T state1{};
         [[maybe_unused]] states_T state2{};
 
-        [[maybe_unused]] Boolean_Function* func1{ null };
-        [[maybe_unused]] Boolean_Function* func2{ null };
+        [[maybe_unused]] Boolean_Function* func1{ NULL };
+        [[maybe_unused]] Boolean_Function* func2{ NULL };
     };
 
 
@@ -279,25 +296,28 @@ namespace Automata
 
     class r_AFA_Transition_Function
     {
+    public:
         using alphabet_T = int;
         using states_T = int;
-        using alphabet_state_pair = Pair;
+        using letter_state_pair = Pair;
 
-        std::unordered_map<alphabet_state_pair, Disjunctive_Normal_Form> map{};
-
-        void add(states_T state, alphabet_T letter, Disjunctive_Normal_Form disjuctive_form)
+        void add(states_T state, alphabet_T letter, Disjunctive_Normal_Form *disjuctive_form)
         {
-            map[{state, letter}] = disjuctive_form;
+            letter_state_pair pair{ state, letter };
+            map[pair] = disjuctive_form;
         }
 
-        Disjunctive_Normal_Form operator[](alphabet_state_pair& key)
+        Disjunctive_Normal_Form* operator[](letter_state_pair& key)
         {
             auto search{ map.find(key) };
             if (search != map.end())
                 return (*search).second;
-            return {};
+            throw std::runtime_error("Transition Function NOT defined for given letter_state_pair");
         }
 
+    private:
+
+        std::unordered_map<letter_state_pair, Disjunctive_Normal_Form*> map{};
     };
 
     class r_AFA
@@ -307,7 +327,10 @@ namespace Automata
         using alphabet_T = int;
         using states_T = int;
 
-        r_AFA(int number_of_states, states_T starting_state, std::vector<states_T> finishing_states, r_AFA_Transition_Function transition_function);
+        r_AFA(int number_of_states, states_T starting_state, std::vector<states_T> finishing_states, r_AFA_Transition_Function* transition_function);
+
+    private:
+
     };
 
 }

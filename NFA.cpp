@@ -18,7 +18,7 @@ std::vector<Automata::Pair> Automata::NFARules::operator[](alphabet_T& key)
 }
 
 
-Automata::NFA::NFA(int number_of_states, std::vector<states_T> starting_states, std::vector<states_T> finishing_states, NFARules rule_set) : rules{ rule_set },number_of_states(number_of_states), initial_vec({ 1, number_of_states }), final_vec({ number_of_states, 1 })
+Automata::NFA::NFA(int number_of_states, std::vector<states_T> starting_states, std::vector<states_T> finishing_states, NFARules* rule_set) : rules{ rule_set },number_of_states(number_of_states), initial_vec({ 1, number_of_states }), final_vec({ number_of_states, 1 })
 {
 
 	std::vector<Eigen::Triplet<double>> starting_triplet_List;
@@ -63,8 +63,8 @@ Eigen::SparseMatrix<int> Automata::NFA::step(std::queue<alphabet_T>& word)
 	word.pop();
 
 	std::vector<Eigen::Triplet<double>> tripletList;
-	tripletList.reserve(rules[letter].size());
-	for (Pair state_pair : rules[letter])
+	tripletList.reserve((*rules)[letter].size());
+	for (Pair state_pair : (*rules)[letter])
 		tripletList.push_back({ static_cast<int>(state_pair.item1), static_cast<int>(state_pair.item2), 1 });
 
 	Eigen::SparseMatrix<int> character_morphism{ number_of_states, number_of_states };
