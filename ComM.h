@@ -5,11 +5,13 @@
 #include<vector>
 #include<array>
 #include<queue>
+#include<deque>
 #include<stdexcept>
 #include<cassert>
 #include <boost/dynamic_bitset.hpp>
+#include <iostream>
 
-
+using namespace std::string_literals;
 
 namespace Turing
 {
@@ -128,19 +130,31 @@ namespace Turing
 
 namespace Automata
 {
-	struct Pair
-	{
+    struct Pair
+    {
         using states_T = size_t;
 
         states_T item1;
         states_T item2;
 
-		size_t hash() const;
+        size_t hash() const;
 
-		bool operator==(const Pair& other) const { return item1 == other.item1 && item2 == other.item2; }
-	};
+        bool operator==(const Pair& other) const { return item1 == other.item1 && item2 == other.item2; }
+    };
 
+}
+template<>
+struct std::hash<Automata::Pair>
+{
+    std::size_t operator()(const Automata::Pair& s) const noexcept
+    {
+        std::size_t h = s.hash();
+        return h;
+    }
+};
 
+namespace Automata
+{
 	struct NFARules
 	{
 		using State_Transitions = std::vector<Pair>;
@@ -182,16 +196,10 @@ namespace Automata
 
     struct Disjunctive_Normal_Term
     {
-        
         boost::dynamic_bitset<> alpha; //if x or ¬x appears
         boost::dynamic_bitset<> beta;  //if x appears
 
-        bool eval(boost::dynamic_bitset<>* inputs) const
-        {
-            if (((*inputs & alpha)^beta).none())
-                return 1;
-            return 0;
-        }
+        bool eval(boost::dynamic_bitset<>* inputs) const;
     };
 
     class Disjunctive_Normal_Form
@@ -199,34 +207,10 @@ namespace Automata
     public:
         Disjunctive_Normal_Form(size_t size) : size(size) {}
 
-        void add_term(Disjunctive_Normal_Term term)
-        {
-            assert(term.alpha.size() == size && term.beta.size() == size && "Terms definitions not correct size");
-            assert(term.alpha.at(0) == 0 && term.beta.at(0) == 0 && "NO term can depend on S (( r-AFA are a variation of s-AFA ))");
-            terms.push_back(term);
-        }
-
-        void set_true()
-        {
-            terms.clear();
-            terms.push_back({ {size,size} });
-        }
-
-        void set_false()
-        {
-            terms.clear();
-            Disjunctive_Normal_Term DNT {{ size , size }};
-            DNT.beta.flip();
-            terms.push_back(DNT);
-        }
-
-        bool eval(boost::dynamic_bitset<>* inputs)
-        {
-            for (Disjunctive_Normal_Term &term : terms)
-                if (term.eval(inputs))
-                    return 1;
-            return 0;
-        }
+        void add_term(Disjunctive_Normal_Term term);
+        void set_true();
+        void set_false();
+        bool eval(boost::dynamic_bitset<>* inputs);
 
     private:
         size_t size;
@@ -258,27 +242,14 @@ namespace Automata
 
         using states_T = int;
 
-        Boolean_Function(states_T term, Operation operation = Operation::NOT) : type(Type::STATE), operation(operation), state1(term)
-        {
-            if (operation != Operation::NOT)
-                throw std::runtime_error("Boolean function with single term must have operation::NOT");
-        }
-        Boolean_Function(Boolean_Function* term, Operation operation) : type(Type::FUNC), operation(operation), func1(term)
-        {
-            if (operation != Operation::NOT)
-                throw std::runtime_error("Boolean function with single term must have operation::NOT");
-        }
+        Boolean_Function(states_T term, Operation operation = Operation::NOT);
+        Boolean_Function(Boolean_Function* term, Operation operation);
         Boolean_Function(states_T term1, states_T term2, Operation operation) : type(Type::STATE_STATE), operation(operation), state1(term1), state2(term2){}
         Boolean_Function(states_T term1, Boolean_Function* term2, Operation operation) : type(Type::STATE_FUNC), operation(operation), state1(term1), func2(term2){}
         Boolean_Function(Boolean_Function* term2, states_T term1, Operation operation) : type(Type::STATE_FUNC), operation(operation), state1(term1), func2(term2) {}
         Boolean_Function(Boolean_Function* term1, Boolean_Function* term2, Operation operation) : type(Type::FUNC_FUNC), operation(operation), func1(term1), func2(term2){}
 
-        Disjunctive_Normal_Form convert_to_disjunctive_normal_form()
-        {
-
-        }
-        
-        
+        Disjunctive_Normal_Form convert_to_disjunctive_normal_form();
 
     private:
         Type type;
@@ -301,19 +272,8 @@ namespace Automata
         using states_T = int;
         using letter_state_pair = Pair;
 
-        void add(states_T state, alphabet_T letter, Disjunctive_Normal_Form *disjuctive_form)
-        {
-            letter_state_pair pair{ state, letter };
-            map[pair] = disjuctive_form;
-        }
-
-        Disjunctive_Normal_Form* operator[](letter_state_pair& key)
-        {
-            auto search{ map.find(key) };
-            if (search != map.end())
-                return (*search).second;
-            throw std::runtime_error("Transition Function NOT defined for given letter_state_pair");
-        }
+        void add(states_T state, alphabet_T letter, Disjunctive_Normal_Form* disjuctive_form);
+        Disjunctive_Normal_Form* operator[](letter_state_pair& key);
 
     private:
 
@@ -327,10 +287,15 @@ namespace Automata
         using alphabet_T = int;
         using states_T = int;
 
-        r_AFA(int number_of_states, states_T starting_state, std::vector<states_T> finishing_states, r_AFA_Transition_Function* transition_function);
+        r_AFA(states_T number_of_states, std::vector<states_T> finishing_states, r_AFA_Transition_Function* transition_function);
+        bool accept(std::vector<alphabet_T> input);
+        bool accept(std::deque<alphabet_T>& word);
 
     private:
-
+        states_T number_of_states;
+        const states_T starting_state{ 0 };
+        std::vector<states_T> finishing_states;
+        r_AFA_Transition_Function* transition_function;
     };
 
 }

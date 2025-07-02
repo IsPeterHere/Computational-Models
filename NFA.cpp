@@ -71,14 +71,3 @@ Eigen::SparseMatrix<int> Automata::NFA::step(std::queue<alphabet_T>& word)
 	character_morphism.setFromTriplets(tripletList.begin(), tripletList.end());
 	return character_morphism;
 }
-
-template<>
-struct std::hash<Automata::Pair>
-{
-	std::size_t operator()(const Automata::Pair& s) const noexcept
-	{
-		std::size_t h = s.hash();
-		return h;
-	}
-};
-

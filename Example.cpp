@@ -1,7 +1,6 @@
 #include <iostream>
 #include "ComM.h"
 
-using namespace std::string_literals;
 
 #define ABF Automata::Boolean_Function
 #define AND Automata::Boolean_Function::Operation::AND
@@ -57,40 +56,48 @@ int main()
 	Automata::r_AFA_Transition_Function transition_function{};
 
 	Automata::Disjunctive_Normal_Form DNF0a{ NUMBER_OF_STATES };
-	DNF0a.add_term({{"0100"s,"0000"s}});
-	DNF0a.add_term({ {"0010"s,"0000"s} });
+	DNF0a.add_term({ {"0100"s,0,4},{"0000"s,0,4} });
+	DNF0a.add_term({ {"0010"s,0,4},{"0000"s,0,4} });
 	transition_function.add(zero, a, &DNF0a);
 	Automata::Disjunctive_Normal_Form DNF0b{ NUMBER_OF_STATES };
-	DNF0b.add_term({ {"0100"s,"0000"s} });
-	DNF0b.add_term({ {"0010"s,"0000"s} });
-	DNF0b.add_term({ {"0001"s,"0000"s} });
+	DNF0b.add_term({ {"0100"s,0,4},{"0000"s,0,4} });
+	DNF0b.add_term({ {"0010"s,0,4},{"0000"s,0,4} });
+	DNF0b.add_term({ {"0001"s,0,4},{"0000"s,0,4} });
 	transition_function.add(zero, b, &DNF0b);
 
 	Automata::Disjunctive_Normal_Form DNF1a{ NUMBER_OF_STATES };
-	DNF1a.add_term({ {"0100"s,"0100"s} });
-	DNF1a.add_term({ {"0011"s,"0011"s} });
+	DNF1a.add_term({ {"0100"s,0,4},{"0100"s,0,4} });
+	DNF1a.add_term({ {"0011"s,0,4},{"0011"s,0,4} });
 	transition_function.add(one, a, &DNF1a);
 	Automata::Disjunctive_Normal_Form DNF1b{ NUMBER_OF_STATES };
-	DNF1b.add_term({ {"0111"s,"0111"s} });
+	DNF1b.add_term({ {"0111"s,0,4},{"0111"s,0,4} });
 	transition_function.add(one, b, &DNF1b);
 
 	Automata::Disjunctive_Normal_Form DNF2a{ NUMBER_OF_STATES };
-	DNF2a.add_term({ {"0110"s,"0110"s} });
-	DNF2a.add_term({ {"0011"s,"0010"s} });
-	DNF2a.add_term({ {"0011"s,"0001"s} });
+	DNF2a.add_term({ {"0110"s,0,4},{"0110"s,0,4} });
+	DNF2a.add_term({ {"0011"s,0,4},{"0010"s,0,4} });
+	DNF2a.add_term({ {"0011"s,0,4},{"0001"s,0,4} });
 	transition_function.add(two, a, &DNF2a);
 	Automata::Disjunctive_Normal_Form DNF2b{ NUMBER_OF_STATES };
-	DNF2b.add_term({ {"0111"s,"0111"s} });
+	DNF2b.add_term({ {"0111"s,0,4},{"0111"s,0,4} });
 	transition_function.add(two, b, &DNF2b);
 
 	Automata::Disjunctive_Normal_Form DNF3a{ NUMBER_OF_STATES };
-	DNF3a.add_term({ {"0110"s,"0110"s} });
-	DNF3a.add_term({ {"0101"s,"0100"s} });
-	DNF3a.add_term({ {"0011"s,"0010"s} });
+	DNF3a.add_term({ {"0110"s,0,4},{"0110"s,0,4} });
+	DNF3a.add_term({ {"0101"s,0,4},{"0100"s,0,4} });
+	DNF3a.add_term({ {"0011"s,0,4},{"0010"s,0,4} });
 	transition_function.add(three, a, &DNF3a);
 	Automata::Disjunctive_Normal_Form DNF3b{ NUMBER_OF_STATES };
 	DNF3b.set_true();
 	transition_function.add(three, b, &DNF3b);
+
+
+	Automata::r_AFA r_AFA{ NUMBER_OF_STATES,{},&transition_function };
+
+	std::cout << r_AFA.accept({ a,b,a,a,a }) << "\n";//should be true
+	std::cout << r_AFA.accept({ a,b,b,b,b,b,b,b,a}) << "\n";//should be false
+	std::cout << r_AFA.accept({ a,a,a,a,a}) << "\n";//should be true
+	std::cout << r_AFA.accept({ a,a,a,b,b,b,b,b,b,b,a,a }) << "\n";//should be false
 
 	return 0;
 }
