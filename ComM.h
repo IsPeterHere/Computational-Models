@@ -199,7 +199,7 @@ namespace Automata
         boost::dynamic_bitset<> alpha; //if x or ¬x appears
         boost::dynamic_bitset<> beta;  //if x appears
 
-        bool eval(boost::dynamic_bitset<>* inputs) const;
+        bool eval(boost::dynamic_bitset<> inputs) const;
     };
 
     class Disjunctive_Normal_Form

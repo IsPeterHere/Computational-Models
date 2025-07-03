@@ -6,8 +6,6 @@
 #define AND Automata::Boolean_Function::Operation::AND
 #define OR Automata::Boolean_Function::Operation::OR
 #define NOT Automata::Boolean_Function::Operation::NOT
-//accepts languages in the form (a+b)* abb(a+b)*
-//See "Example DFA.png" for a diagram of this automaton
 
 enum states
 {
@@ -27,6 +25,8 @@ enum alphabet
 
 int main()
 {
+	//accepts languages in the form (a+b)* abb(a+b)*
+	//See "Example DFA.png" for a diagram of this automaton
 
 	////create the transition rule set
 	//Automata::NFARules  rule_set{};
@@ -92,12 +92,12 @@ int main()
 	transition_function.add(three, b, &DNF3b);
 
 
-	Automata::r_AFA r_AFA{ NUMBER_OF_STATES,{},&transition_function };
+	Automata::r_AFA r_AFA{ NUMBER_OF_STATES,{0,3},&transition_function };
 
 	std::cout << r_AFA.accept({ a,b,a,a,a }) << "\n";//should be true
-	std::cout << r_AFA.accept({ a,b,b,b,b,b,b,b,a}) << "\n";//should be false
+	std::cout << r_AFA.accept({ a,b,b,a,a,a,a,a,a,a}) << "\n";//should be false
 	std::cout << r_AFA.accept({ a,a,a,a,a}) << "\n";//should be true
-	std::cout << r_AFA.accept({ a,a,a,b,b,b,b,b,b,b,a,a }) << "\n";//should be false
+	std::cout << r_AFA.accept({ a,a,a,a,a,a,b,b,b,b,b,b,b,a,a }) << "\n";//should be false
 
 	return 0;
 }

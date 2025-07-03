@@ -1,9 +1,9 @@
 #include"ComM.h"
 
 
-bool Automata::Disjunctive_Normal_Term::eval(boost::dynamic_bitset<>* inputs) const
+bool Automata::Disjunctive_Normal_Term::eval(boost::dynamic_bitset<> inputs) const
 {
-    if (((*inputs & alpha) ^ beta).none())
+    if (((inputs &= alpha) ^= beta).none())
         return 1;
     return 0;
 }
@@ -34,7 +34,7 @@ void Automata::Disjunctive_Normal_Form::set_false()
 bool Automata::Disjunctive_Normal_Form::eval(boost::dynamic_bitset<>* inputs)
 {
     for (Disjunctive_Normal_Term& term : terms)
-        if (term.eval(inputs))
+        if (term.eval(*inputs))
             return 1;
     return 0;
 }
@@ -69,7 +69,6 @@ void Automata::r_AFA_Transition_Function::add(states_T state, alphabet_T letter,
 
 Automata::Disjunctive_Normal_Form* Automata::r_AFA_Transition_Function::operator[](letter_state_pair& key)
 {
-    //std::cout << key.item1 << "  " << key.item2 << "\n";
     auto search{ map.find(key) };
     if (search != map.end())
         return (*search).second;
@@ -98,20 +97,22 @@ bool Automata::r_AFA::accept(std::deque<alphabet_T>& word)
 {
     boost::dynamic_bitset<> charcteristic_vector{ static_cast<size_t>(number_of_states) };
     for (states_T final_state : finishing_states)
-        charcteristic_vector[final_state].flip();
+        charcteristic_vector[number_of_states - 1 - final_state].flip();
 
     while (!word.empty())
     {
         alphabet_T letter{ word.back() };
         word.pop_back();
+        boost::dynamic_bitset<> new_charcteristic_vector{ static_cast<size_t>(number_of_states) };
 
         for (states_T state{ 0 }; state < number_of_states; state++)
         {
             Pair at{ letter,state };
-            charcteristic_vector[state] = (*transition_function)[at]->eval(&charcteristic_vector);
+            new_charcteristic_vector[number_of_states-1 - state] = (*transition_function)[at]->eval(&charcteristic_vector);
         }
+        charcteristic_vector = new_charcteristic_vector;
     }
 
-    return (charcteristic_vector[starting_state] == true);
+    return (charcteristic_vector[number_of_states - 1 - starting_state] == true);
 }
 
