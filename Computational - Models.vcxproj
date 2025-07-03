@@ -128,7 +128,7 @@
     <ClInclude Include="ComM.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Example.cpp" />
+    <ClCompile Include="Examples.cpp" />
     <ClCompile Include="NFA.cpp" />
     <ClCompile Include="r-AFA.cpp" />
     <ClCompile Include="Turing.cpp" />
