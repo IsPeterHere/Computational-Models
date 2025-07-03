@@ -23,7 +23,7 @@
     <ClCompile Include="Turing.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Example.cpp">
+    <ClCompile Include="Examples.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="NFA.cpp">

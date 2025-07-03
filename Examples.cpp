@@ -23,35 +23,37 @@ enum alphabet
 };
 
 
-int main()
+void example_NFA()
 {
+	std::cout << "\n" << "Example_NFA:" << "\n";
 	//accepts languages in the form (a+b)* abb(a+b)*
 	//See "Example DFA.png" for a diagram of this automaton
 
-	////create the transition rule set
-	//Automata::NFARules  rule_set{};
+	//create the transition rule set
+	Automata::NFARules  rule_set{};
 
-	//Automata::NFARules::State_Transitions a_transitions = { { zero , one },{ one , one },{ two , one },{ three,three } };
-	//rule_set.add(a, a_transitions);
+	Automata::NFARules::State_Transitions a_transitions = { { zero , one },{ one , one },{ two , one },{ three,three } };
+	rule_set.add(a, a_transitions);
 
-	//Automata::NFARules::State_Transitions b_transitions = { { zero , zero },{ one , two },{ two , three },{ three,three } };
-	//rule_set.add(b, b_transitions);
-
-
-
-	////create the NFA
-	//Automata::NFA nfa{NUMBER_OF_STATES, {zero},{three},rule_set };
+	Automata::NFARules::State_Transitions b_transitions = { { zero , zero },{ one , two },{ two , three },{ three,three } };
+	rule_set.add(b, b_transitions);
 
 
-	////See if the NFA accepts the following words
-	//std::cout << static_cast<int>(nfa.accept({ a,b,a })) << "\n";
-	//std::cout << static_cast<int>(nfa.accept({ a,b,a,a,a,b,b,a,a })) << "\n";
-	//std::cout << static_cast<int>(nfa.accept({ a,b,b })) << "\n";
 
-	auto f_a = ABF(zero, three, AND);
-	auto f_b = ABF(&f_a,NOT);
-	auto f_c = ABF(&f_b,one, OR);
-	auto f_d = ABF(&f_c,two, AND);
+	//create the NFA
+	Automata::NFA nfa{NUMBER_OF_STATES, {zero},{three},&rule_set };
+
+
+	//See if the NFA accepts the following words
+	std::cout << static_cast<int>(nfa.accept({ a,b,a })) << "\n";
+	std::cout << static_cast<int>(nfa.accept({ a,b,a,a,a,b,b,a,a })) << "\n";
+	std::cout << static_cast<int>(nfa.accept({ a,b,b })) << "\n";
+}
+
+void example_r_AFA()
+{
+	std::cout << "\n" << "Example_r_AFA:" << "\n";
+	//Accepts words with at most 6 consecutive a's
 
 	Automata::r_AFA_Transition_Function transition_function{};
 
@@ -95,9 +97,21 @@ int main()
 	Automata::r_AFA r_AFA{ NUMBER_OF_STATES,{0,3},&transition_function };
 
 	std::cout << r_AFA.accept({ a,b,a,a,a }) << "\n";//should be true
-	std::cout << r_AFA.accept({ a,b,b,a,a,a,a,a,a,a}) << "\n";//should be false
-	std::cout << r_AFA.accept({ a,a,a,a,a}) << "\n";//should be true
+	std::cout << r_AFA.accept({ a,b,b,a,a,a,a,a,a,a }) << "\n";//should be false
+	std::cout << r_AFA.accept({ a,a,a,a,a }) << "\n";//should be true
 	std::cout << r_AFA.accept({ a,a,a,a,a,a,b,b,b,b,b,b,b,a,a }) << "\n";//should be false
+}
+
+int main()
+{
+
+	//auto f_a = ABF(zero, three, AND);
+	//auto f_b = ABF(&f_a,NOT);
+	//auto f_c = ABF(&f_b,one, OR);
+	//auto f_d = ABF(&f_c,two, AND);
+
+	example_NFA();
+	example_r_AFA();
 
 	return 0;
 }
