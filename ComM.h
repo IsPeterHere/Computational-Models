@@ -3,13 +3,15 @@
 #include<unordered_set>
 #include<Eigen/Sparse>
 #include<vector>
+#include<array>
 #include<queue>
+#include<deque>
 #include<stdexcept>
 #include<cassert>
+#include <boost/dynamic_bitset.hpp>
+#include <iostream>
 
-
-
-
+using namespace std::string_literals;
 
 namespace Turing
 {
@@ -128,20 +130,34 @@ namespace Turing
 
 namespace Automata
 {
-	struct State_state_pair
-	{
-		size_t state1;
-		size_t state2;
+    struct Pair
+    {
+        using states_T = size_t;
 
-		size_t hash() const;
+        states_T item1;
+        states_T item2;
 
-		bool operator==(const State_state_pair& other) const { return state1 == other.state1 && state2 == other.state2; }
-	};
+        size_t hash() const;
 
+        bool operator==(const Pair& other) const { return item1 == other.item1 && item2 == other.item2; }
+    };
 
+}
+template<>
+struct std::hash<Automata::Pair>
+{
+    std::size_t operator()(const Automata::Pair& s) const noexcept
+    {
+        std::size_t h = s.hash();
+        return h;
+    }
+};
+
+namespace Automata
+{
 	struct NFARules
 	{
-		using State_Transitions = std::vector<State_state_pair>;
+		using State_Transitions = std::vector<Pair>;
         using alphabet_T = size_t;
 
 		std::unordered_map<alphabet_T, State_Transitions> map{};
@@ -158,7 +174,7 @@ namespace Automata
         using alphabet_T = size_t;
         using states_T = size_t;
 
-        NFA(int number_of_states, std::vector<states_T> starting_states, std::vector<states_T> finishing_states, NFARules rule_set);
+        NFA(int number_of_states, std::vector<states_T> starting_states, std::vector<states_T> finishing_states, NFARules* rule_set);
 
         bool accept(std::vector<alphabet_T> input);
         bool accept(std::queue<alphabet_T>& word);
@@ -166,12 +182,120 @@ namespace Automata
 	private:
         int number_of_states;
 		std::queue<alphabet_T> input_word;
-		NFARules rules;
+		NFARules* rules;
 
 		Eigen::SparseMatrix<int> initial_vec;
 		Eigen::SparseMatrix<int> final_vec;
 
         Eigen::SparseMatrix<int> step(std::queue<alphabet_T>& word);
 	};
+
+
+
+
+
+    struct Disjunctive_Normal_Term
+    {
+        boost::dynamic_bitset<> alpha; //if x or ¬x appears
+        boost::dynamic_bitset<> beta;  //if x appears
+
+        bool eval(boost::dynamic_bitset<> inputs) const;
+    };
+
+    class Disjunctive_Normal_Form
+    {
+    public:
+        Disjunctive_Normal_Form(size_t size) : size(size) {}
+
+        void add_term(Disjunctive_Normal_Term term);
+        void set_true();
+        void set_false();
+        bool eval(boost::dynamic_bitset<>* inputs);
+
+    private:
+        size_t size;
+        std::vector<Disjunctive_Normal_Term> terms;
+
+    };
+
+
+    class Boolean_Function
+    {
+    public:
+
+        enum class Type
+        {
+            STATE,
+            FUNC,
+
+            STATE_STATE,
+            STATE_FUNC,
+            FUNC_FUNC
+        };
+
+        enum class Operation
+        {
+            AND,
+            OR,
+            NOT
+        };
+
+        using states_T = int;
+
+        Boolean_Function(states_T term, Operation operation = Operation::NOT);
+        Boolean_Function(Boolean_Function* term, Operation operation);
+        Boolean_Function(states_T term1, states_T term2, Operation operation) : type(Type::STATE_STATE), operation(operation), state1(term1), state2(term2){}
+        Boolean_Function(states_T term1, Boolean_Function* term2, Operation operation) : type(Type::STATE_FUNC), operation(operation), state1(term1), func2(term2){}
+        Boolean_Function(Boolean_Function* term2, states_T term1, Operation operation) : type(Type::STATE_FUNC), operation(operation), state1(term1), func2(term2) {}
+        Boolean_Function(Boolean_Function* term1, Boolean_Function* term2, Operation operation) : type(Type::FUNC_FUNC), operation(operation), func1(term1), func2(term2){}
+
+        Disjunctive_Normal_Form convert_to_disjunctive_normal_form();
+
+    private:
+        Type type;
+        Operation operation;
+
+        [[maybe_unused]] states_T state1{};
+        [[maybe_unused]] states_T state2{};
+
+        [[maybe_unused]] Boolean_Function* func1{ NULL };
+        [[maybe_unused]] Boolean_Function* func2{ NULL };
+    };
+
+
+
+
+    class r_AFA_Transition_Function
+    {
+    public:
+        using alphabet_T = int;
+        using states_T = int;
+        using letter_state_pair = Pair;
+
+        void add(states_T state, alphabet_T letter, Disjunctive_Normal_Form* disjuctive_form);
+        Disjunctive_Normal_Form* operator[](letter_state_pair& key);
+
+    private:
+
+        std::unordered_map<letter_state_pair, Disjunctive_Normal_Form*> map{};
+    };
+
+    class r_AFA
+    {
+    public:
+
+        using alphabet_T = int;
+        using states_T = int;
+
+        r_AFA(states_T number_of_states, std::vector<states_T> finishing_states, r_AFA_Transition_Function* transition_function);
+        bool accept(std::vector<alphabet_T> input);
+        bool accept(std::deque<alphabet_T>& word);
+
+    private:
+        states_T number_of_states;
+        const states_T starting_state{ 0 };
+        std::vector<states_T> finishing_states;
+        r_AFA_Transition_Function* transition_function;
+    };
 
 }
