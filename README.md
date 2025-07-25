@@ -5,7 +5,7 @@ The models created so far are:
  
 ## 1. Turing machine 
 
-Turing_Machine.h defines a basic Turing machine model (one in which a tape starting from 0 has infinite length in one direction ~ a.k.a. a large pre-specified length for programming purposes). The following projects extend this Turing machine module to define more complicated systems.
+Turing_Machine.h defines a basic Turing machine model (Specifically as descried in Papadimitriou, Christos H . Computational Complexity. United Kingdom, Addison-Wesley, 1993.), though with a adjustable predetermined bound on the tape length for implementation purposes. The following projects extend this Turing machine module to define more complicated systems.
 
 ### Where this model has been used:
 <a href = "https://github.com/IsPeterHere/4-Bit-RAM">A minimalistic 4-bit-RAM architecture running on a single tape Turing machine</a>
