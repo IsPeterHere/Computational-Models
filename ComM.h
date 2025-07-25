@@ -95,6 +95,9 @@ namespace Turing
     class Turing_Machine
     {
     public:
+        
+        //A Traditional Turing Machine, 
+        //Specifically derived from definition in Papadimitriou, Christos H .. Computational Complexity. United Kingdom, Addison-Wesley, 1993.
 
         using RuleSet = Rules;
         using SS = State_Symbol;
@@ -102,7 +105,7 @@ namespace Turing
 
         Turing_Machine(RuleSet& rules, size_t start_state);
 
-        //The return will be a vector containing symbols taken from the leftmost cell to the position if the machines head.
+        //The return will be a vector containing symbols taken from the leftmost cell to the position of the machines head.
         void boot_up(std::vector<size_t>& input);
         void run();
 
@@ -122,7 +125,12 @@ namespace Turing
         void reset();
         void step();
         bool check_done();
+    };
 
+
+
+    class Bounded_Turing_Machine
+    {
 
     };
 }
