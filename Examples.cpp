@@ -102,6 +102,33 @@ void example_r_AFA()
 	std::cout << r_AFA.accept({ a,a,a,a,a,a,b,b,b,b,b,b,b,a,a }) << "\n";//should be false
 }
 
+void example_L_System()
+{
+	std::cout << "\n" << "Example_r_AFA:" << "\n";
+	//Non-square repetition
+
+	L_Systems::Rules rules{ 2 };
+	rules.add(a, { b,a });
+	rules.add(b, { a,b });
+
+	L_Systems::L_System system{ rules,{a} };
+	system.run(4);
+
+	for (int i : system.word)
+	{
+		switch (i)
+		{
+		case 1:
+			std::cout << "b";
+			break;
+		case 0:
+			std::cout << "a";
+		}
+	}
+	std::cout << "\n";
+	
+}
+
 int main()
 {
 
@@ -112,6 +139,7 @@ int main()
 
 	example_NFA();
 	example_r_AFA();
+	example_L_System();
 
 	return 0;
 }
