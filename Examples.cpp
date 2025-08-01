@@ -111,7 +111,7 @@ void example_L_System()
 	rules.add(a, { b,a });
 	rules.add(b, { a,b });
 
-	L_Systems::L_System system{ rules,{a} };
+	L_Systems::L_System system{ &rules,{a} };
 	system.run(4);
 
 	for (int i : system.word)
