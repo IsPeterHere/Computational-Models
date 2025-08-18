@@ -40,5 +40,5 @@ sources:
  sources:  
 1.  Jewls of Formal Language Theory ch2 L2.1 ~ A.Salommaa
 
-2.  Where this model has been used:   
+Where this model has been used:   
 - <a href = "https://github.com/IsPeterHere/L-System-Sunlight-Competition">L-System Sunlight Competition</a>
