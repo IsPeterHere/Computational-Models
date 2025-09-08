@@ -54,11 +54,6 @@ Automata::Boolean_Function::Boolean_Function(Boolean_Function* term, Operation o
         throw std::runtime_error("Boolean function with single term must have operation::NOT");
 }
 
-Automata::Disjunctive_Normal_Form Automata::Boolean_Function::convert_to_disjunctive_normal_form()
-{
-    return {0};
-}
-
 
 
 void Automata::r_AFA_Transition_Function::add(states_T state, alphabet_T letter, Disjunctive_Normal_Form* disjuctive_form)

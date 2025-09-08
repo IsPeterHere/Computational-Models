@@ -257,7 +257,10 @@ namespace Automata
         Boolean_Function(Boolean_Function* term2, states_T term1, Operation operation) : type(Type::STATE_FUNC), operation(operation), state1(term1), func2(term2) {}
         Boolean_Function(Boolean_Function* term1, Boolean_Function* term2, Operation operation) : type(Type::FUNC_FUNC), operation(operation), func1(term1), func2(term2){}
 
-        Disjunctive_Normal_Form convert_to_disjunctive_normal_form();
+        static Boolean_Function parse_string()
+        {
+            return {};
+        }
 
     private:
         Type type;

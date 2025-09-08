@@ -7,6 +7,7 @@
 #define OR Automata::Boolean_Function::Operation::OR
 #define NOT Automata::Boolean_Function::Operation::NOT
 
+
 enum states
 {
 	zero,
@@ -50,7 +51,7 @@ void example_NFA()
 	std::cout << static_cast<int>(nfa.accept({ a,b,b })) << "\n";
 }
 
-void example_r_AFA()
+void example_r_AFA_defined_by_DNF()
 {
 	std::cout << "\n" << "Example_r_AFA:" << "\n";
 	//Accepts words with at most 6 consecutive a's
@@ -102,6 +103,43 @@ void example_r_AFA()
 	std::cout << r_AFA.accept({ a,a,a,a,a,a,b,b,b,b,b,b,b,a,a }) << "\n";//should be false
 }
 
+void example_r_AFA_defined_by_DNF()
+{
+	std::cout << "\n" << "Example_r_AFA:" << "\n";
+	//Accepts words with at most 6 consecutive a's
+
+	Automata::r_AFA_Transition_Function transition_function{};
+
+	Automata::Boolean_Function a0{ Automata::Boolean_Function::parse_string()};
+	transition_function.add(zero, a, &a0);
+	Automata::Boolean_Function b0{ Automata::Boolean_Function::parse_string() };
+	transition_function.add(zero, b, &b0);
+
+	Automata::Boolean_Function a1{ Automata::Boolean_Function::parse_string() };
+	transition_function.add(one, a, &a1);
+	Automata::Boolean_Function b1{ Automata::Boolean_Function::parse_string() };
+	transition_function.add(one, b, &b1);
+
+	Automata::Boolean_Function a2{ Automata::Boolean_Function::parse_string() };
+	transition_function.add(two, a, &a2);
+	Automata::Boolean_Function b2{ Automata::Boolean_Function::parse_string() };
+	transition_function.add(two, b, &b2);
+
+	Automata::Boolean_Function a3{ Automata::Boolean_Function::parse_string() };
+	transition_function.add(three, a, &a3);
+	Automata::Boolean_Function b3{ Automata::Boolean_Function::parse_string() };
+	transition_function.add(three, b, &b3);
+
+
+	Automata::r_AFA r_AFA{ NUMBER_OF_STATES,{0,3},&transition_function };
+
+	std::cout << r_AFA.accept({ a,b,a,a,a }) << "\n";//should be true
+	std::cout << r_AFA.accept({ a,b,b,a,a,a,a,a,a,a }) << "\n";//should be false
+	std::cout << r_AFA.accept({ a,a,a,a,a }) << "\n";//should be true
+	std::cout << r_AFA.accept({ a,a,a,a,a,a,b,b,b,b,b,b,b,a,a }) << "\n";//should be false
+}
+
+
 void example_L_System()
 {
 	std::cout << "\n" << "Example_r_AFA:" << "\n";
@@ -138,7 +176,7 @@ int main()
 	//auto f_d = ABF(&f_c,two, AND);
 
 	example_NFA();
-	example_r_AFA();
+	example_r_AFA_defined_by_DNF();
 	example_L_System();
 
 	return 0;
