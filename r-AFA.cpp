@@ -56,13 +56,13 @@ Automata::Boolean_Function::Boolean_Function(Operation operation, std::shared_pt
 
 
 
-void Automata::r_AFA_Transition_Function::add(states_T state, alphabet_T letter, Disjunctive_Normal_Form* disjuctive_form)
+void Automata::r_AFA_DNF_Transition_Function::add(states_T state, alphabet_T letter, Disjunctive_Normal_Form* disjuctive_form)
 {
     letter_state_pair pair{ letter,state };
     map[pair] = disjuctive_form;
 }
 
-Automata::Disjunctive_Normal_Form* Automata::r_AFA_Transition_Function::operator[](letter_state_pair& key)
+Automata::Disjunctive_Normal_Form* Automata::r_AFA_DNF_Transition_Function::operator[](letter_state_pair& key)
 {
     auto search{ map.find(key) };
     if (search != map.end())
@@ -72,7 +72,7 @@ Automata::Disjunctive_Normal_Form* Automata::r_AFA_Transition_Function::operator
 
 
 
-Automata::r_AFA::r_AFA(states_T number_of_states, std::vector<states_T> finishing_states, r_AFA_Transition_Function* transition_function) : number_of_states(number_of_states), finishing_states(finishing_states), transition_function(transition_function)
+Automata::r_AFA::r_AFA(states_T number_of_states, std::vector<states_T> finishing_states, r_AFA_DNF_Transition_Function* transition_function) : number_of_states(number_of_states), finishing_states(finishing_states), transition_function(transition_function)
 {
     for (states_T final_state : finishing_states)
     {

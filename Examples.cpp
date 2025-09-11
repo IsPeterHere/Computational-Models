@@ -57,7 +57,7 @@ void example_r_AFA_defined_by_DNF()
 	std::cout << "\n" << "Example_r_AFA:" << "\n";
 	//Accepts words with at most 6 consecutive a's
 
-	Automata::r_AFA_Transition_Function transition_function{};
+	Automata::r_AFA_DNF_Transition_Function transition_function{};
 
 	Automata::Disjunctive_Normal_Form DNF0a{ NUMBER_OF_STATES };
 	DNF0a.add_term({ {"0100"s,0,4},{"0000"s,0,4} });
@@ -111,24 +111,24 @@ void example_r_AFA_defined_by_DNF()
 
 	Automata::r_AFA_Transition_Function transition_function{};
 
-	auto a0 = f(f(NOT(f(zero, AND, three)), OR, one), AND, two);
+	auto a0 = f(NOT(one),OR,NOT(two));
 	transition_function.add(zero, a, a0);
-	Automata::Boolean_Function b0{ Automata::Boolean_Function::parse_string() };
+	auto b0 = f(f(NOT(one), OR, NOT(two)), OR, NOT(three));
 	transition_function.add(zero, b, &b0);
 
-	Automata::Boolean_Function a1{ Automata::Boolean_Function::parse_string() };
+	auto a1 = f(f(three, AND, two), OR, one);
 	transition_function.add(one, a, &a1);
-	Automata::Boolean_Function b1{ Automata::Boolean_Function::parse_string() };
+	auto b1 = f(f(one, AND, two), AND, three);
 	transition_function.add(one, b, &b1);
 
-	Automata::Boolean_Function a2{ Automata::Boolean_Function::parse_string() };
+	auto a2 = f(f(f(one, AND, two), OR, f(two,AND,NOT(three))), OR, f(NOT(two), AND, three));
 	transition_function.add(two, a, &a2);
-	Automata::Boolean_Function b2{ Automata::Boolean_Function::parse_string() };
+	auto b2 = f(f(one, AND, two), AND, three);
 	transition_function.add(two, b, &b2);
 
-	Automata::Boolean_Function a3{ Automata::Boolean_Function::parse_string() };
+	auto a3 = f(f(f(one, AND, two), OR, f(one, AND, NOT(three))), OR, f(two, AND, NOT(three)));
 	transition_function.add(three, a, &a3);
-	Automata::Boolean_Function b3{ Automata::Boolean_Function::parse_string() };
+	auto b3 = true;
 	transition_function.add(three, b, &b3);
 
 

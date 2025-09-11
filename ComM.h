@@ -273,7 +273,7 @@ namespace Automata
 
 
 
-    class r_AFA_Transition_Function
+    class r_AFA_DNF_Transition_Function
     {
     public:
         using alphabet_T = int;
@@ -295,7 +295,7 @@ namespace Automata
         using alphabet_T = int;
         using states_T = int;
 
-        r_AFA(states_T number_of_states, std::vector<states_T> finishing_states, r_AFA_Transition_Function* transition_function);
+        r_AFA(states_T number_of_states, std::vector<states_T> finishing_states, r_AFA_DNF_Transition_Function* transition_function);
         bool accept(std::vector<alphabet_T> input);
         bool accept(std::deque<alphabet_T>& word);
 
@@ -303,7 +303,7 @@ namespace Automata
         states_T number_of_states;
         const states_T starting_state{ 0 };
         std::vector<states_T> finishing_states;
-        r_AFA_Transition_Function* transition_function;
+        r_AFA_DNF_Transition_Function* transition_function;
     };
 
 }
