@@ -2,10 +2,11 @@
 #include "ComM.h"
 
 
-#define ABF Automata::Boolean_Function
+#define f(t1,o,t2) std::make_shared<Automata::Boolean_Function>(Automata::Boolean_Function(t1,o,t2))
+#define NOT(t) std::make_shared<Automata::Boolean_Function>(Automata::Boolean_Function(Automata::Boolean_Function::Operation::NOT,t))
+
 #define AND Automata::Boolean_Function::Operation::AND
 #define OR Automata::Boolean_Function::Operation::OR
-#define NOT Automata::Boolean_Function::Operation::NOT
 
 
 enum states
@@ -110,8 +111,8 @@ void example_r_AFA_defined_by_DNF()
 
 	Automata::r_AFA_Transition_Function transition_function{};
 
-	Automata::Boolean_Function a0{ Automata::Boolean_Function::parse_string()};
-	transition_function.add(zero, a, &a0);
+	auto a0 = f(f(NOT(f(zero, AND, three)), OR, one), AND, two);
+	transition_function.add(zero, a, a0);
 	Automata::Boolean_Function b0{ Automata::Boolean_Function::parse_string() };
 	transition_function.add(zero, b, &b0);
 
@@ -169,11 +170,6 @@ void example_L_System()
 
 int main()
 {
-
-	//auto f_a = ABF(zero, three, AND);
-	//auto f_b = ABF(&f_a,NOT);
-	//auto f_c = ABF(&f_b,one, OR);
-	//auto f_d = ABF(&f_c,two, AND);
 
 	example_NFA();
 	example_r_AFA_defined_by_DNF();

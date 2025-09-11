@@ -43,12 +43,12 @@ bool Automata::Disjunctive_Normal_Form::eval(boost::dynamic_bitset<>* inputs)
 
 
 
-Automata::Boolean_Function::Boolean_Function(states_T term, Operation operation) : type(Type::STATE), operation(operation), state1(term)
+Automata::Boolean_Function::Boolean_Function(Operation operation, states_T term) : type(Type::STATE), operation(operation), state1(term)
 {
     if (operation != Operation::NOT)
         throw std::runtime_error("Boolean function with single term must have operation::NOT");
 }
-Automata::Boolean_Function::Boolean_Function(Boolean_Function* term, Operation operation) : type(Type::FUNC), operation(operation), func1(term)
+Automata::Boolean_Function::Boolean_Function(Operation operation, std::shared_ptr < Boolean_Function > term) : type(Type::FUNC), operation(operation), func1(term)
 {
     if (operation != Operation::NOT)
         throw std::runtime_error("Boolean function with single term must have operation::NOT");

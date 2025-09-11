@@ -10,6 +10,7 @@
 #include<cassert>
 #include <boost/dynamic_bitset.hpp>
 #include <iostream>
+#include <memory>
 
 using namespace std::string_literals;
 
@@ -250,17 +251,13 @@ namespace Automata
 
         using states_T = int;
 
-        Boolean_Function(states_T term, Operation operation = Operation::NOT);
-        Boolean_Function(Boolean_Function* term, Operation operation);
-        Boolean_Function(states_T term1, states_T term2, Operation operation) : type(Type::STATE_STATE), operation(operation), state1(term1), state2(term2){}
-        Boolean_Function(states_T term1, Boolean_Function* term2, Operation operation) : type(Type::STATE_FUNC), operation(operation), state1(term1), func2(term2){}
-        Boolean_Function(Boolean_Function* term2, states_T term1, Operation operation) : type(Type::STATE_FUNC), operation(operation), state1(term1), func2(term2) {}
-        Boolean_Function(Boolean_Function* term1, Boolean_Function* term2, Operation operation) : type(Type::FUNC_FUNC), operation(operation), func1(term1), func2(term2){}
+        Boolean_Function(Operation operation,states_T term);
+        Boolean_Function(Operation operation, std::shared_ptr < Boolean_Function > term);
+        Boolean_Function(states_T term1, Operation operation, states_T term2) : type(Type::STATE_STATE), operation(operation), state1(term1), state2(term2){}
+        Boolean_Function(states_T term1, Operation operation, std::shared_ptr < Boolean_Function > term2) : type(Type::STATE_FUNC), operation(operation), state1(term1), func2(term2){}
+        Boolean_Function(std::shared_ptr < Boolean_Function > term2, Operation operation, states_T term1) : type(Type::STATE_FUNC), operation(operation), state1(term1), func2(term2) {}
+        Boolean_Function(std::shared_ptr < Boolean_Function > term1, Operation operation, std::shared_ptr < Boolean_Function > term2) : type(Type::FUNC_FUNC), operation(operation), func1(term1), func2(term2){}
 
-        static Boolean_Function parse_string()
-        {
-            return {};
-        }
 
     private:
         Type type;
@@ -269,8 +266,8 @@ namespace Automata
         [[maybe_unused]] states_T state1{};
         [[maybe_unused]] states_T state2{};
 
-        [[maybe_unused]] Boolean_Function* func1{ NULL };
-        [[maybe_unused]] Boolean_Function* func2{ NULL };
+        [[maybe_unused]] std::shared_ptr < Boolean_Function > func1{ NULL };
+        [[maybe_unused]] std::shared_ptr < Boolean_Function > func2{ NULL };
     };
 
 
