@@ -18,6 +18,9 @@
     <ClInclude Include="ComM.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="BooleanFunctions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Turing.cpp">
