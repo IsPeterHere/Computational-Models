@@ -7,7 +7,7 @@ The models created and defined in ComM.h so far are:
 
 A basic Turing machine model (Specifically as descried in 1.) is defined, only limited with an adjustable predetermined bound on the tape length for implementation purposes.
 
-sources:  
+Reference used:  
 1. Papadimitriou, Christos H . Computational Complexity. United Kingdom, Addison-Wesley, 1993.
 
  Where this model has been used:   
@@ -21,14 +21,17 @@ The following are different finite automata that are capable, once set-up of det
 
 A Non-deterministic finite automata is a fast and efficient generalization of a DFA, an equivalent DFA could could take up to 2^n states to simulate a NFA of n states. The non-Deterministic Finite Automata.h defines an interface for a NFA model, and ExampleNFA.cpp provides an example of defining a DFA and querying its language acceptance. The NFA uses sparse matrices to simulate the NFA resulting in fast querying of language acceptance even on NFAs with large numbers of nodes.
 
-sources:  
+Reference used:   
 1.  Jewls of Formal Language Theory ch2 L2.1 ~ A.Salommaa  
 
 ### 2.2 Alternating Finite Automata (r-AFA)
 
-Alternating finite automata are a generalized method for dealing with non-deterministic automata. An r-AFA can have its transition functioned defined by a series of regular expressions leading to a more *programmable* Automata. Any n-state DFA can be represented by an equivalent r-AFA of at most log(n) +1 states. This implementation uses Boolean vectors to store and efficiently evaluate the transition function giving tremendous space and speed savings in comparison to a symbolic simulation.
+Alternating finite automata are a generalized method for dealing with non-deterministic automata. An r-AFA can have its transition functioned defined by a series of regular expressions leading to a more *programmable* Automata. Any n-state DFA can be represented by an equivalent r-AFA of at most log(n) + 1 states. In this implementation there are two ways to define an AFA; by a DNF equation (speed advantages if there is a succinct DNF representation), or by Boolean Formula.
 
-sources:  
+Resources Used:     
+1.  <a href = "https://github.com/IsPeterHere/General-Boolean-Functions">General Boolean Functions</a>  
+
+Reference used:  
 1.  Handbook of Formal Languages vol1 2.3.7 ~ G.rozenberg & A.salomaa  
 
 
@@ -37,7 +40,7 @@ sources:
 ### 2.1 Deterministic context-free L-System (DOL System)
  A Basic DOL-system that can efficiently perform substitutions on a given word iteratively.
 
- sources:  
+Reference used: 
 1.  Jewls of Formal Language Theory ch2 L2.1 ~ A.Salommaa
 
 Where this model has been used:   
