@@ -10,6 +10,9 @@
 #include<cassert>
 #include <boost/dynamic_bitset.hpp>
 #include <iostream>
+#include <memory>
+
+#include"BooleanFunctions.h"
 
 using namespace std::string_literals;
 
@@ -226,54 +229,7 @@ namespace Automata
 
     };
 
-
-    class Boolean_Function
-    {
-    public:
-
-        enum class Type
-        {
-            STATE,
-            FUNC,
-
-            STATE_STATE,
-            STATE_FUNC,
-            FUNC_FUNC
-        };
-
-        enum class Operation
-        {
-            AND,
-            OR,
-            NOT
-        };
-
-        using states_T = int;
-
-        Boolean_Function(states_T term, Operation operation = Operation::NOT);
-        Boolean_Function(Boolean_Function* term, Operation operation);
-        Boolean_Function(states_T term1, states_T term2, Operation operation) : type(Type::STATE_STATE), operation(operation), state1(term1), state2(term2){}
-        Boolean_Function(states_T term1, Boolean_Function* term2, Operation operation) : type(Type::STATE_FUNC), operation(operation), state1(term1), func2(term2){}
-        Boolean_Function(Boolean_Function* term2, states_T term1, Operation operation) : type(Type::STATE_FUNC), operation(operation), state1(term1), func2(term2) {}
-        Boolean_Function(Boolean_Function* term1, Boolean_Function* term2, Operation operation) : type(Type::FUNC_FUNC), operation(operation), func1(term1), func2(term2){}
-
-        Disjunctive_Normal_Form convert_to_disjunctive_normal_form();
-
-    private:
-        Type type;
-        Operation operation;
-
-        [[maybe_unused]] states_T state1{};
-        [[maybe_unused]] states_T state2{};
-
-        [[maybe_unused]] Boolean_Function* func1{ NULL };
-        [[maybe_unused]] Boolean_Function* func2{ NULL };
-    };
-
-
-
-
-    class r_AFA_Transition_Function
+    class r_AFA_DNF_Transition_Function
     {
     public:
         using alphabet_T = int;
@@ -288,22 +244,50 @@ namespace Automata
         std::unordered_map<letter_state_pair, Disjunctive_Normal_Form*> map{};
     };
 
+    class r_AFA_Transition_Function
+    {
+    public:
+        using alphabet_T = int;
+        using states_T = int;
+        using letter_state_pair = Pair;
+
+        void add(states_T state, alphabet_T letter, std::shared_ptr < Boolean_Function > formula);
+        std::shared_ptr < Boolean_Function > operator[](letter_state_pair& key);
+
+    private:
+
+        std::unordered_map<letter_state_pair, std::shared_ptr < Boolean_Function >> map{};
+    };
+
     class r_AFA
     {
     public:
+        enum class Type
+        {
+            DNF,
+            BOOLEAN_FORMULA
+        };
 
         using alphabet_T = int;
         using states_T = int;
 
+        r_AFA(states_T number_of_states, std::vector<states_T> finishing_states, r_AFA_DNF_Transition_Function* transition_function);
         r_AFA(states_T number_of_states, std::vector<states_T> finishing_states, r_AFA_Transition_Function* transition_function);
+
         bool accept(std::vector<alphabet_T> input);
         bool accept(std::deque<alphabet_T>& word);
 
     private:
+        Type type;
+
         states_T number_of_states;
         const states_T starting_state{ 0 };
         std::vector<states_T> finishing_states;
-        r_AFA_Transition_Function* transition_function;
+
+        void* transition_function;
+
+        bool accept_DNF(std::deque<alphabet_T>& word);
+        bool accept_BOOLEAN_FORMULA(std::deque<alphabet_T>& word);
     };
 
 }

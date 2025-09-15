@@ -2,10 +2,13 @@
 #include "ComM.h"
 
 
-#define ABF Automata::Boolean_Function
-#define AND Automata::Boolean_Function::Operation::AND
-#define OR Automata::Boolean_Function::Operation::OR
-#define NOT Automata::Boolean_Function::Operation::NOT
+#define f(t1,o,t2) std::make_shared<Boolean_Function>(t1,o,t2)
+#define NOT(t) std::make_shared<Boolean_Function>(  Boolean_Function::Operation::NOT,t)
+#define TRUE std::make_shared<Boolean_Function>(true)
+#define FALSE std::make_shared<Boolean_Function>(false)
+
+#define AND Boolean_Function::Operation::AND
+#define OR Boolean_Function::Operation::OR
 
 enum states
 {
@@ -50,12 +53,12 @@ void example_NFA()
 	std::cout << static_cast<int>(nfa.accept({ a,b,b })) << "\n";
 }
 
-void example_r_AFA()
+void example_r_AFA_defined_by_DNF()
 {
-	std::cout << "\n" << "Example_r_AFA:" << "\n";
+	std::cout << "\n" << "Example r_AFA (DNF):" << "\n";
 	//Accepts words with at most 6 consecutive a's
 
-	Automata::r_AFA_Transition_Function transition_function{};
+	Automata::r_AFA_DNF_Transition_Function transition_function{};
 
 	Automata::Disjunctive_Normal_Form DNF0a{ NUMBER_OF_STATES };
 	DNF0a.add_term({ {"0100"s,0,4},{"0000"s,0,4} });
@@ -102,9 +105,46 @@ void example_r_AFA()
 	std::cout << r_AFA.accept({ a,a,a,a,a,a,b,b,b,b,b,b,b,a,a }) << "\n";//should be false
 }
 
+void example_r_AFA_defined_by_Boolean_Formula()
+{
+	std::cout << "\n" << "Example r_AFA (Boolean Formula):" << "\n";
+	//Accepts words with at most 6 consecutive a's
+
+	Automata::r_AFA_Transition_Function transition_function{};
+
+	auto a0 = f(NOT(one),OR,NOT(two));
+	transition_function.add(zero, a, a0);
+	auto b0 = f(f(NOT(one), OR, NOT(two)), OR, NOT(three));
+	transition_function.add(zero, b, b0);
+
+	auto a1 = f(f(three, AND, two), OR, one);
+	transition_function.add(one, a, a1);
+	auto b1 = f(f(one, AND, two), AND, three);
+	transition_function.add(one, b, b1);
+
+	auto a2 = f(f(f(one, AND, two), OR, f(two,AND,NOT(three))), OR, f(NOT(two), AND, three));
+	transition_function.add(two, a, a2);
+	auto b2 = f(f(one, AND, two), AND, three);
+	transition_function.add(two, b, b2);
+
+	auto a3 = f(f(f(one, AND, two), OR, f(one, AND, NOT(three))), OR, f(two, AND, NOT(three)));
+	transition_function.add(three, a, a3);
+	auto b3 = TRUE;
+	transition_function.add(three, b, b3);
+
+
+	Automata::r_AFA r_AFA{ NUMBER_OF_STATES,{0,3},&transition_function };
+
+	std::cout << r_AFA.accept({ a,b,a,a,a }) << "\n";//should be true
+	std::cout << r_AFA.accept({ a,b,b,a,a,a,a,a,a,a }) << "\n";//should be false
+	std::cout << r_AFA.accept({ a,a,a,a,a }) << "\n";//should be true
+	std::cout << r_AFA.accept({ a,a,a,a,a,a,b,b,b,b,b,b,b,a,a }) << "\n";//should be false
+}
+
+
 void example_L_System()
 {
-	std::cout << "\n" << "Example_r_AFA:" << "\n";
+	std::cout << "\n" << "Example L_system:" << "\n";
 	//Non-square repetition
 
 	L_Systems::Rules rules{ 2 };
@@ -131,14 +171,10 @@ void example_L_System()
 
 int main()
 {
-
-	//auto f_a = ABF(zero, three, AND);
-	//auto f_b = ABF(&f_a,NOT);
-	//auto f_c = ABF(&f_b,one, OR);
-	//auto f_d = ABF(&f_c,two, AND);
-
+	std::cout << "\n" << "Some Outputs:" << "\n";
 	example_NFA();
-	example_r_AFA();
+	example_r_AFA_defined_by_DNF();
+	example_r_AFA_defined_by_Boolean_Formula();
 	example_L_System();
 
 	return 0;
