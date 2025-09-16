@@ -32,7 +32,7 @@ public:
 
     using variable_repr_T = int;
 
-    Boolean_Function(bool binary) { if (binary) type = Type::TAUT; else type = Type::CONT;};
+    Boolean_Function(bool binary) { if (binary) type = Type::TAUT; else type = Type::CONT; };
     Boolean_Function(Operation operation, variable_repr_T term) : type(Type::VAR), operation(operation), var1(term)
     {
         if (operation != Operation::NOT)
@@ -69,7 +69,7 @@ public:
             case Operation::OR:
                 return eval_variable(var1) || eval_variable(var2);
             default:
-                throw std::runtime_error("Bad Operation Type");
+                throw std::runtime_error("Unrecognized Operation Type");
             }
         case Type::VAR_FUNC:
             switch (operation)
@@ -79,7 +79,7 @@ public:
             case Operation::OR:
                 return eval_variable(var1) || func1->eval(eval_variable);
             default:
-                throw std::runtime_error("Bad Operation Type");
+                throw std::runtime_error("Unrecognized Operation Type");
             }
         case Type::FUNC_FUNC:
             switch (operation)
@@ -89,14 +89,108 @@ public:
             case Operation::OR:
                 return  func2->eval(eval_variable) || func1->eval(eval_variable);
             default:
-                throw std::runtime_error("Bad Operation Type");
-            }    
+                throw std::runtime_error("Unrecognized Operation Type");
+            }
         default:
             throw std::runtime_error("Unrecognized Function Type");
         }
     };
 
-private:
+
+    bool isDNF() const
+    {
+        switch (type)
+        {
+        case Type::TAUT:
+            return false;
+        case Type::CONT:
+            return false;
+        case Type::VAR:
+            return true;
+        case Type::FUNC:
+            return false;
+        case Type::VAR_VAR:
+            switch (operation)
+            {
+            case Operation::AND:
+                return true;
+            case Operation::OR:
+                return true;
+            default:
+                throw std::runtime_error("Unrecognized Operation Type");
+            }
+        case Type::VAR_FUNC:
+            switch (operation)
+            {
+            case Operation::AND:
+                return (func1->operation == Operation::AND || func1->operation == Operation::NOT) ? func1->isDNF() : false;
+            case Operation::OR:
+                return func1->isDNF();
+            default:
+                throw std::runtime_error("Unrecognized Operation Type");
+            }
+        case Type::FUNC_FUNC:
+            switch (operation)
+            {
+            case Operation::AND:
+                return  (func1->operation == Operation::AND || func1->operation == Operation::NOT) && (func2->operation == Operation::AND || func2->operation == Operation::NOT) ? func1->isDNF() && func2->isDNF() : false;
+            case Operation::OR:
+                return  func1->isDNF() && func2->isDNF();
+            default:
+                throw std::runtime_error("Unrecognized Operation Type");
+            }
+        default:
+            throw std::runtime_error("Unrecognized Function Type");
+        }
+    }
+
+    bool isCNF() const
+    {
+        switch (type)
+        {
+        case Type::TAUT:
+            return false;
+        case Type::CONT:
+            return false;
+        case Type::VAR:
+            return true;
+        case Type::FUNC:
+            return false;
+        case Type::VAR_VAR:
+            switch (operation)
+            {
+            case Operation::AND:
+                return true;
+            case Operation::OR:
+                return true;
+            default:
+                throw std::runtime_error("Unrecognized Operation Type");
+            }
+        case Type::VAR_FUNC:
+            switch (operation)
+            {
+            case Operation::OR:
+                return (func1->operation == Operation::OR || func1->operation == Operation::NOT) ? func1->isDNF() : false;
+            case Operation::AND:
+                return func1->isDNF();
+            default:
+                throw std::runtime_error("Unrecognized Operation Type");
+            }
+        case Type::FUNC_FUNC:
+            switch (operation)
+            {
+            case Operation::OR:
+                return  (func1->operation == Operation::OR || func1->operation == Operation::NOT) && (func2->operation == Operation::OR || func2->operation == Operation::NOT) ? func1->isDNF() && func2->isDNF() : false;
+            case Operation::AND:
+                return  func1->isDNF() && func2->isDNF();
+            default:
+                throw std::runtime_error("Unrecognized Operation Type");
+            }
+        default:
+            throw std::runtime_error("Unrecognized Function Type");
+        }
+    }
+
     Type type{ Type::NONE };
     Operation operation{ Operation::NONE };
 

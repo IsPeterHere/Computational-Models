@@ -207,8 +207,14 @@ namespace Automata
 
     struct Disjunctive_Normal_Term
     {
-        boost::dynamic_bitset<> alpha; //if x or ¬x appears
-        boost::dynamic_bitset<> beta;  //if x appears
+        Disjunctive_Normal_Term(size_t size)
+        {
+            alpha = boost::dynamic_bitset<>(size);
+            beta = boost::dynamic_bitset<>(size);
+        }
+
+        boost::dynamic_bitset<> alpha; // 1 if x or ¬x appears else 0
+        boost::dynamic_bitset<> beta;  // 1 if x appears else 0
 
         bool eval(boost::dynamic_bitset<> inputs) const;
     };
@@ -216,17 +222,19 @@ namespace Automata
     class Disjunctive_Normal_Form
     {
     public:
+        Disjunctive_Normal_Form(size_t size, std::shared_ptr < Boolean_Function >);
         Disjunctive_Normal_Form(size_t size) : size(size) {}
 
         void add_term(Disjunctive_Normal_Term term);
-        void set_true();
-        void set_false();
+        void set_true(); //i.e a tautology
+        void set_false(); //i.e a contradiction
         bool eval(boost::dynamic_bitset<>* inputs);
+
 
     private:
         size_t size;
         std::vector<Disjunctive_Normal_Term> terms;
-
+        void initDNF(std::shared_ptr < Boolean_Function > function, Automata::Disjunctive_Normal_Term* term = NULL);
     };
 
     class r_AFA_DNF_Transition_Function
