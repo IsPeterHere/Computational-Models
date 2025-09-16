@@ -8,7 +8,118 @@ bool Automata::Disjunctive_Normal_Term::eval(boost::dynamic_bitset<> inputs) con
     return 0;
 }
 
+void Automata::Disjunctive_Normal_Form::initDNF(std::shared_ptr < Boolean_Function > function, Automata::Disjunctive_Normal_Term* term)
+{
+    switch (function->type)
+    {
+    case Boolean_Function::Type::VAR:
+        if (term == NULL)
+        {
+            Automata::Disjunctive_Normal_Term new_term{size};
+            new_term.alpha[size - 1 - function->var1].flip();
+            add_term(new_term);
+        }
+        else
+        {
+            term->alpha[size - 1 - function->var1].flip();
+        }
+        break;
+    case Boolean_Function::Type::VAR_VAR:
+        switch (function->operation)
+        {
+        case Boolean_Function::Operation::AND:
+            if (term == NULL)
+            {
+                Automata::Disjunctive_Normal_Term new_term{ size };
+                new_term.alpha[size - 1 - function->var1].flip();
+                new_term.beta[size - 1 - function->var1].flip();
+                new_term.alpha[size - 1 - function->var2].flip();
+                new_term.beta[size - 1 - function->var2].flip();
+                add_term(new_term);
+            }
+            else
+            {
+                term->alpha[size - 1 - function->var1].flip();
+                term->beta[size - 1 - function->var1].flip();
+                term->alpha[size - 1 - function->var2].flip();
+                term->beta[size - 1 - function->var2].flip();
+            }
+            break;
+        case Boolean_Function::Operation::OR:
+            Automata::Disjunctive_Normal_Term new_term1{ size };
+            new_term1.alpha[size - 1 - function->var1].flip();
+            new_term1.beta[size - 1 - function->var1].flip();
+            add_term(new_term1);
 
+            Automata::Disjunctive_Normal_Term new_term2{ size };
+            new_term2.alpha[size - 1 - function->var2].flip();
+            new_term2.beta[size - 1 - function->var2].flip();
+            add_term(new_term2);
+
+        }
+        break;
+    case Boolean_Function::Type::VAR_FUNC:
+        switch (function->operation)
+        {
+        case Boolean_Function::Operation::AND:
+            if (term == NULL)
+            {
+                Automata::Disjunctive_Normal_Term* new_term{ new Automata::Disjunctive_Normal_Term(size) };
+                new_term->alpha[size - 1 - function->var1].flip();
+                new_term->beta[size - 1 - function->var1].flip();
+                initDNF(function->func1, new_term);
+                add_term(*new_term);
+                delete new_term;
+            }
+            else
+            {
+                term->alpha[size - 1 - function->var1].flip();
+                term->beta[size - 1 - function->var1].flip();
+                initDNF(function->func1,term);
+            }
+            break;
+        case Boolean_Function::Operation::OR:
+            initDNF(function->func1);
+
+            Automata::Disjunctive_Normal_Term new_term{ size };
+            new_term.alpha[size - 1 - function->var1].flip();
+            new_term.beta[size - 1 - function->var1].flip();
+            add_term(new_term);
+        }
+        break;
+    case Boolean_Function::Type::FUNC_FUNC:
+        switch (function->operation)
+        {
+        case Boolean_Function::Operation::AND:
+            if (term == NULL)
+            {
+                Automata::Disjunctive_Normal_Term* new_term{ new Automata::Disjunctive_Normal_Term(size) };
+                initDNF(function->func1, new_term);
+                initDNF(function->func2, new_term);
+                add_term(*new_term);
+                delete new_term;
+            }
+            else
+            {
+                initDNF(function->func1, term);
+                initDNF(function->func2, term);
+            }
+            break;
+        case Boolean_Function::Operation::OR:
+            initDNF(function->func1);
+            initDNF(function->func2);
+        }
+        break;
+    }
+}
+
+Automata::Disjunctive_Normal_Form::Disjunctive_Normal_Form(size_t size, std::shared_ptr < Boolean_Function > function) : size(size)
+{
+    if (!function->isDNF())
+        throw std::runtime_error("Given Boolean formula must be in DNF to initialize Disjunctive_Normal_Form object");
+
+    initDNF(function);
+}
 
 void  Automata::Disjunctive_Normal_Form::add_term(Disjunctive_Normal_Term term)
 {
@@ -20,13 +131,13 @@ void  Automata::Disjunctive_Normal_Form::add_term(Disjunctive_Normal_Term term)
 void Automata::Disjunctive_Normal_Form::set_true()
 {
     terms.clear();
-    terms.push_back({ boost::dynamic_bitset(size), boost::dynamic_bitset(size) });
+    terms.push_back({ size });
 }
 
 void Automata::Disjunctive_Normal_Form::set_false()
 {
     terms.clear();
-    Disjunctive_Normal_Term DNT{ boost::dynamic_bitset(size), boost::dynamic_bitset(size) };
+    Disjunctive_Normal_Term DNT{ size };
     DNT.beta.flip();
     terms.push_back(DNT);
 }

@@ -60,39 +60,35 @@ void example_r_AFA_defined_by_DNF()
 
 	Automata::r_AFA_DNF_Transition_Function transition_function{};
 
-	Automata::Disjunctive_Normal_Form DNF0a{ NUMBER_OF_STATES };
-	DNF0a.add_term({ {"0100"s,0,4},{"0000"s,0,4} });
-	DNF0a.add_term({ {"0010"s,0,4},{"0000"s,0,4} });
+	auto a0 = f(NOT(one), OR, NOT(two));
+	Automata::Disjunctive_Normal_Form DNF0a{ NUMBER_OF_STATES,a0 };
 	transition_function.add(zero, a, &DNF0a);
-	Automata::Disjunctive_Normal_Form DNF0b{ NUMBER_OF_STATES };
-	DNF0b.add_term({ {"0100"s,0,4},{"0000"s,0,4} });
-	DNF0b.add_term({ {"0010"s,0,4},{"0000"s,0,4} });
-	DNF0b.add_term({ {"0001"s,0,4},{"0000"s,0,4} });
+
+	auto b0 = f(f(NOT(one), OR, NOT(two)), OR, NOT(three));
+	Automata::Disjunctive_Normal_Form DNF0b{ NUMBER_OF_STATES,b0 };
 	transition_function.add(zero, b, &DNF0b);
 
-	Automata::Disjunctive_Normal_Form DNF1a{ NUMBER_OF_STATES };
-	DNF1a.add_term({ {"0100"s,0,4},{"0100"s,0,4} });
-	DNF1a.add_term({ {"0011"s,0,4},{"0011"s,0,4} });
+	auto a1 = f(f(three, AND, two), OR, one);
+	Automata::Disjunctive_Normal_Form DNF1a{ NUMBER_OF_STATES, a1 };
 	transition_function.add(one, a, &DNF1a);
-	Automata::Disjunctive_Normal_Form DNF1b{ NUMBER_OF_STATES };
-	DNF1b.add_term({ {"0111"s,0,4},{"0111"s,0,4} });
+
+	auto b1 = f(f(one, AND, two), AND, three);
+	Automata::Disjunctive_Normal_Form DNF1b{ NUMBER_OF_STATES, b1 };
 	transition_function.add(one, b, &DNF1b);
 
-	Automata::Disjunctive_Normal_Form DNF2a{ NUMBER_OF_STATES };
-	DNF2a.add_term({ {"0110"s,0,4},{"0110"s,0,4} });
-	DNF2a.add_term({ {"0011"s,0,4},{"0010"s,0,4} });
-	DNF2a.add_term({ {"0011"s,0,4},{"0001"s,0,4} });
+	auto a2 = f(f(f(one, AND, two), OR, f(two, AND, NOT(three))), OR, f(NOT(two), AND, three));
+	Automata::Disjunctive_Normal_Form DNF2a{ NUMBER_OF_STATES, a2 };
 	transition_function.add(two, a, &DNF2a);
-	Automata::Disjunctive_Normal_Form DNF2b{ NUMBER_OF_STATES };
-	DNF2b.add_term({ {"0111"s,0,4},{"0111"s,0,4} });
+
+	auto b2 = f(f(one, AND, two), AND, three);
+	Automata::Disjunctive_Normal_Form DNF2b{ NUMBER_OF_STATES, b2 };
 	transition_function.add(two, b, &DNF2b);
 
-	Automata::Disjunctive_Normal_Form DNF3a{ NUMBER_OF_STATES };
-	DNF3a.add_term({ {"0110"s,0,4},{"0110"s,0,4} });
-	DNF3a.add_term({ {"0101"s,0,4},{"0100"s,0,4} });
-	DNF3a.add_term({ {"0011"s,0,4},{"0010"s,0,4} });
+	auto a3 = f(f(f(one, AND, two), OR, f(one, AND, NOT(three))), OR, f(two, AND, NOT(three)));
+	Automata::Disjunctive_Normal_Form DNF3a{ NUMBER_OF_STATES, a3 };
 	transition_function.add(three, a, &DNF3a);
-	Automata::Disjunctive_Normal_Form DNF3b{ NUMBER_OF_STATES };
+
+	Automata::Disjunctive_Normal_Form DNF3b{ NUMBER_OF_STATES};
 	DNF3b.set_true();
 	transition_function.add(three, b, &DNF3b);
 
