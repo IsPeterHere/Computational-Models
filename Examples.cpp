@@ -25,10 +25,49 @@ enum alphabet
 	b
 };
 
+void example_Turing_Machine()
+{
+	std::cout << "\n" << "Example Turing Machine:" << "\n";
+
+	Turing::Rules ruleSet{};
+	ruleSet.add({one,a}, { two,a,Turing::RIGHT }); // (one,a) -> (two,a,right)
+
+	ruleSet.add({ three,a }, { zero,b,Turing::RIGHT }); // (three,a) -> END (zero is always the halting state)
+
+	std::vector<size_t> someStates
+	{
+		one,two,three
+	};
+
+	ruleSet.add(someStates,b, { three,b,Turing::LEFT }); // (one,b) -> (three,b,left), (two,b) -> (three,b,left), & (three,b) -> (three,b,left)
+
+	Turing::Turing_Machine machine(ruleSet, one); // create machine using ruleSet and starting state one. (zero is always the halting state)
+
+
+	std::vector<size_t> input{a,b,a};
+	machine.boot_up(input);//the start of the tape will be set to input followed by all 0s
+	machine.run();
+
+	for (size_t code : *machine.get_tape())//Print contents of the tape
+	{
+		alphabet item{ static_cast<alphabet>(code) };
+
+		switch (item)
+		{
+		case a:
+			std::cout << "a\n";
+			break;
+		case b:
+			std::cout << "b\n";
+			break;
+		}
+	}
+
+}
 
 void example_NFA()
 {
-	std::cout << "\n" << "Example_NFA:" << "\n";
+	std::cout << "\n" << "Example NFA:" << "\n";
 	//accepts languages in the form (a+b)* abb(a+b)*
 	//See "Example DFA.png" for a diagram of this automaton
 
@@ -167,7 +206,8 @@ void example_L_System()
 
 int main()
 {
-	std::cout << "\n" << "Some Outputs:" << "\n";
+	std::cout << "\n" << "The Outputs (See code for Context):" << "\n";
+	example_Turing_Machine();
 	example_NFA();
 	example_r_AFA_defined_by_DNF();
 	example_r_AFA_defined_by_Boolean_Formula();
