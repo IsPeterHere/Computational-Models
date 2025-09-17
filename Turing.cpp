@@ -95,8 +95,6 @@ bool Turing::Turing_Machine::check_done()
     switch (state)
     {
     case HALT:
-    case ACCEPT:
-    case REJECT:
         return true;
     default:
         return false;

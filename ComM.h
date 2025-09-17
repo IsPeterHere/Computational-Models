@@ -39,8 +39,6 @@ namespace Turing
     enum Fundemental_States :size_t
     {
         HALT,
-        ACCEPT,
-        REJECT,
 
         NUMBER_OF_FUNDEMENTAL_STATES
     };
